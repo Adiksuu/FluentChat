@@ -213,6 +213,9 @@ imageInput.addEventListener("change", (e) => {
         };
         getThreadUser();
         const threadID = [uid, threadUser];
+        if (threadUser == '') {
+            return;
+        }
         await getMessageID(threadID);
         const messageIdWithLeadingZeros = `message_${msgID.toString().padStart(8, '0')}`;
         firebase.database().ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}/`).set(data);
