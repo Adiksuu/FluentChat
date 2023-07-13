@@ -55,6 +55,8 @@ function addFriendToDatabase(nickname) {
     rdb.ref(`users/${uid}/friends/friend_${nickname}`).set(data);
 }
 async function loadFriendsFromDatabase() {
+    if (!auth.currentUser)
+        return;
     const uid = auth.currentUser.uid;
     const friendsList = document.querySelector('.friends-list');
     await rdb.ref(`users/${uid}/friends`).once("value", function (snapshot) {
