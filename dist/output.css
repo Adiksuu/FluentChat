@@ -1,0 +1,587 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@200;300;400;500;600;700;800&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scroll-behavior: smooth;
+  border: none;
+  outline: none;
+  text-decoration: none;
+  font-family: "Nunito", "Poppins", sans-serif;
+  transition: 0.2s linear;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+section.app {
+  height: 100%;
+  width: 100%;
+  display: flex;
+}
+section.app .sidebar {
+  min-width: 96px;
+  height: 100%;
+  background: #f9f9f9;
+  border-right: 2px solid rgba(227, 227, 227, 0.3568627451);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+section.app .sidebar .top {
+  margin-top: 24px;
+}
+section.app .sidebar .top img {
+  width: 48px;
+  height: 48px;
+  border-radius: 4px;
+}
+section.app .sidebar .menu {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  height: calc(100% - 96px);
+}
+section.app .sidebar .menu button {
+  height: 48px;
+  width: 48px;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 22px;
+  color: #929292;
+  cursor: pointer;
+}
+section.app .sidebar .menu button.active, section.app .sidebar .menu button:hover {
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+}
+section.app .sidebar .menu-bottom {
+  margin-bottom: 24px;
+}
+section.app .sidebar .menu-bottom button {
+  height: 48px;
+  width: 48px;
+  border-radius: 4px;
+  background: transparent;
+  font-size: 22px;
+  color: #929292;
+  cursor: pointer;
+}
+section.app .sidebar .menu-bottom button.active, section.app .sidebar .menu-bottom button:hover {
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+}
+section.app .chat-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+section.app .chat-container .friends {
+  border-right: 2px solid rgba(227, 227, 227, 0.3568627451);
+  min-width: 356px;
+  height: 100%;
+  background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+}
+section.app .chat-container .friends .navbar {
+  min-height: 96px;
+  border-bottom: 2px solid rgba(227, 227, 227, 0.3568627451);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+}
+section.app .chat-container .friends .navbar img {
+  height: 48px;
+  width: 48px;
+  border-radius: 4px;
+}
+section.app .chat-container .friends .navbar h1 {
+  font-weight: 700;
+  color: #0f0f0f;
+  font-size: 28px;
+}
+section.app .chat-container .friends .friends-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: scroll;
+}
+section.app .chat-container .friends .friends-list::-webkit-scrollbar {
+  display: none;
+}
+section.app .chat-container .friends .friends-list .heading {
+  padding: 16px 4px;
+}
+section.app .chat-container .friends .friends-list .heading span {
+  color: #0f0f0f;
+  font-weight: 800;
+  font-size: 18px;
+}
+section.app .chat-container .friends .friends-list .heading button {
+  height: 28px;
+  width: 28px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  border-radius: 4px;
+  float: right;
+  cursor: pointer;
+}
+section.app .chat-container .friends .friends-list .heading div {
+  opacity: 0;
+  height: 0;
+  margin-top: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+section.app .chat-container .friends .friends-list .heading div.show {
+  margin-top: 16px;
+  opacity: 1;
+  height: 42px;
+  pointer-events: all;
+}
+section.app .chat-container .friends .friends-list .heading div input {
+  display: flex;
+  width: 100%;
+  height: 42px;
+  border-radius: 4px 0 0 4px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  padding: 3px 9px;
+  font-weight: 600;
+  color: #1dabad;
+}
+section.app .chat-container .friends .friends-list .heading div input::placeholder {
+  color: #929292;
+}
+section.app .chat-container .friends .friends-list .heading div button {
+  float: none;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 0 4px 4px 0;
+}
+section.app .chat-container .friends .friends-list .friend {
+  width: 100%;
+  min-height: 72px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-radius: 4px;
+  padding: 0 8px;
+  cursor: pointer;
+}
+section.app .chat-container .friends .friends-list .friend.active, section.app .chat-container .friends .friends-list .friend:hover {
+  background: rgba(227, 227, 227, 0.3568627451);
+}
+section.app .chat-container .friends .friends-list .friend img {
+  height: 56px;
+  width: 56px;
+  border-radius: 4px;
+}
+section.app .chat-container .friends .friends-list .friend div h2 {
+  font-weight: 800;
+  font-size: 15px;
+}
+section.app .chat-container .friends .friends-list .friend div span {
+  font-size: 14px;
+  font-weight: 500;
+  color: #929292;
+}
+section.app .chat-container .chat {
+  width: 100%;
+  height: 100%;
+  background: #f9f9f9;
+}
+section.app .chat-container .chat .navbar {
+  min-height: 96px;
+  border-bottom: 2px solid rgba(227, 227, 227, 0.3568627451);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  gap: 8px;
+}
+section.app .chat-container .chat .navbar img {
+  height: 48px;
+  width: 48px;
+  border-radius: 4px;
+}
+section.app .chat-container .chat .navbar div.options {
+  display: flex;
+  justify-content: flex-end;
+  width: -webkit-fill-available;
+}
+section.app .chat-container .chat .navbar div.options button {
+  float: right;
+  height: 32px;
+  width: 32px;
+  background: transparent;
+  color: #1dabad;
+  font-size: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+section.app .chat-container .chat .navbar div.options button:hover {
+  background: rgba(29, 170, 173, 0.1450980392);
+}
+section.app .chat-container .chat .navbar div.info h1 {
+  font-weight: 800;
+  color: #0f0f0f;
+  font-size: 16px;
+}
+section.app .chat-container .chat .navbar div.info span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #929292;
+  font-weight: 600;
+  font-size: 13px;
+}
+section.app .chat-container .chat .navbar div.info span .status {
+  height: 8px;
+  width: 8px;
+  border-radius: 50%;
+  background: #1dabad;
+}
+section.app .chat-container .chat .chat-messages {
+  height: calc(100% - 96px);
+  display: flex;
+  flex-direction: column;
+}
+section.app .chat-container .chat .chat-messages .messages {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #f3f3f3;
+  padding: 16px;
+  overflow-y: scroll;
+}
+section.app .chat-container .chat .chat-messages .messages::-webkit-scrollbar {
+  display: none;
+}
+section.app .chat-container .chat .chat-messages .messages .message {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+section.app .chat-container .chat .chat-messages .messages .message img {
+  height: 48px;
+  width: 48px;
+  border-radius: 50%;
+}
+section.app .chat-container .chat .chat-messages .messages .message div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+section.app .chat-container .chat .chat-messages .messages .message div h2 {
+  font-weight: 800;
+  color: #0f0f0f;
+  font-size: 14px;
+}
+section.app .chat-container .chat .chat-messages .messages .message div span {
+  background: #fff;
+  padding: 3px 9px;
+  color: #0f0f0f;
+  font-weight: 600;
+  border-radius: 0 16px 16px 16px;
+  display: flex;
+}
+section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
+  border-radius: 4px;
+  width: fit-content;
+  object-fit: contain;
+  height: 156px;
+}
+section.app .chat-container .chat .chat-messages .messages .message.author {
+  justify-content: flex-end;
+}
+section.app .chat-container .chat .chat-messages .messages .message.author div h2 {
+  text-align: right;
+}
+section.app .chat-container .chat .chat-messages .messages .message.author div span {
+  border-radius: 16px 0 16px 16px;
+}
+section.app .chat-container .chat .chat-messages .send-messages {
+  height: 86px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 2px solid rgba(227, 227, 227, 0.3568627451);
+  gap: 16px;
+}
+section.app .chat-container .chat .chat-messages .send-messages .input {
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+section.app .chat-container .chat .chat-messages .send-messages .input button {
+  height: 42px;
+  width: 42px;
+  background: #f1f0f7;
+  border-radius: 16px 0 0 16px;
+  color: #A9ABAC;
+  cursor: pointer;
+}
+section.app .chat-container .chat .chat-messages .send-messages .input button:hover {
+  color: #1dabad;
+}
+section.app .chat-container .chat .chat-messages .send-messages .input form {
+  width: 100%;
+}
+section.app .chat-container .chat .chat-messages .send-messages .input input {
+  width: 100%;
+  height: 42px;
+  padding: 3px 9px;
+  background: #f1f0f7;
+  border-radius: 0 16px 16px 0;
+  font-weight: 600;
+  color: #1dabad;
+}
+section.app .chat-container .chat .chat-messages .send-messages .input input::placeholder {
+  color: #929292;
+}
+section.app .chat-container .chat .chat-messages .send-messages .options {
+  display: flex;
+  gap: 16px;
+}
+section.app .chat-container .chat .chat-messages .send-messages .options button {
+  height: 42px;
+  width: 42px;
+  background: #f1f0f7;
+  border-radius: 16px;
+  color: #A9ABAC;
+  cursor: pointer;
+}
+section.app .chat-container .chat .chat-messages .send-messages .options button:hover {
+  color: #1dabad;
+  background: rgba(29, 170, 173, 0.1450980392);
+}
+section.app .chat-container .chat .chat-messages .send-messages .options input {
+  display: none;
+}
+section.app .chat-container .chat .chat-messages .send-messages .options label {
+  height: 42px;
+  width: 42px;
+  background: #f1f0f7;
+  border-radius: 16px;
+  color: #A9ABAC;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+section.app .chat-container .chat .chat-messages .send-messages .options label:hover {
+  color: #1dabad;
+  background: rgba(29, 170, 173, 0.1450980392);
+}
+section.app .user-manage {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  z-index: 1;
+  pointer-events: none;
+}
+section.app .user-manage .bg-blur {
+  height: 100%;
+  width: 100%;
+  backdrop-filter: blur(5px);
+  opacity: 0;
+  pointer-events: none;
+}
+section.app .user-manage .container {
+  background: #0f0f0f;
+  height: fit-content;
+  width: 405px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  padding: 16px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  opacity: 1;
+  pointer-events: all;
+}
+section.app .user-manage .container.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+section.app .user-manage .container .top img {
+  height: 64px;
+}
+section.app .user-manage .container .top_info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+section.app .user-manage .container .top_info h2 {
+  color: #fff;
+  font-weight: 700;
+  margin-top: 16px;
+}
+section.app .user-manage .container .top_info p {
+  color: #a4a4a4;
+  font-weight: 500;
+  font-size: 12px;
+}
+section.app .user-manage .container form {
+  margin-top: 16px;
+  width: 100%;
+  gap: 16px;
+  display: flex;
+  flex-direction: column;
+}
+section.app .user-manage .container form div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+section.app .user-manage .container form div input {
+  width: 100%;
+  height: 32px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.2078431373);
+  color: #1dabad;
+  font-weight: 600;
+  border: 2px solid transparent;
+  transition: 0.2s linear;
+}
+section.app .user-manage .container form div input.error {
+  border: 2px solid rgba(255, 34, 0, 0.631372549);
+}
+section.app .user-manage .container form div input::placeholder {
+  color: #a4a4a4;
+}
+section.app .user-manage .container form div input:focus {
+  border: 2px solid #1dabad;
+}
+section.app .user-manage .container form div i {
+  position: absolute;
+  right: 8px;
+  color: #fff;
+  bottom: 8px;
+  cursor: pointer;
+}
+section.app .user-manage .container form div span {
+  color: #fff;
+  font-weight: 500;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+section.app .user-manage .container form button {
+  height: 36px;
+  width: calc(100% - 64px);
+  margin: auto;
+  border-radius: 4px;
+  margin-top: 32px;
+  cursor: pointer;
+  background: #1dabad;
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: 0.2s linear;
+}
+section.app .user-manage .container form button:hover {
+  box-shadow: 0 0px 5px 2px rgba(39, 46, 52, 0.4823529412);
+  filter: brightness(1.1);
+}
+section.app .user-manage .container form p {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  color: #fff;
+  font-weight: 600;
+}
+section.app .user-manage .container form p span {
+  color: #1dabad;
+  cursor: pointer;
+  transition: 0.2s linear;
+}
+section.app .user-manage .container form p span:hover {
+  filter: brightness(1.2);
+}
+section.app .user-manage.show {
+  pointer-events: all;
+}
+section.app .user-manage.show .bg-blur {
+  opacity: 1;
+  pointer-events: all;
+}
+
+@media screen and (max-width: 1120px) {
+  section.app .chat-container .chat .chat-messages .send-messages .input {
+    width: 70%;
+  }
+}
+@media screen and (max-width: 950px) {
+  section.app .chat-container .chat .chat-messages .send-messages .input {
+    width: 60%;
+  }
+  section.app .chat-container .chat .chat-messages .messages .message div span img {
+    width: 205px;
+  }
+}
+@media screen and (max-width: 768px) {
+  section.app .sidebar {
+    min-width: 72px;
+  }
+  section.app .chat-container .friends {
+    min-width: 256px;
+  }
+  section.app .chat-container .chat .chat-messages .send-messages .input {
+    width: 50%;
+  }
+  section.app .chat-container .chat .chat-messages .messages .message div span img {
+    width: 175px;
+  }
+}
+@media screen and (max-width: 600px) {
+  section.app .user-manage .container {
+    width: calc(100% - 32px);
+  }
+  section.app .sidebar {
+    min-width: 72px;
+  }
+  section.app .chat-container .friends {
+    min-width: 100%;
+  }
+  section.app .chat-container .friends.hide {
+    display: none;
+  }
+  section.app .chat-container .chat {
+    display: none;
+  }
+  section.app .chat-container .chat.show {
+    display: block;
+  }
+  section.app .chat-container .chat .chat-messages .send-messages .input {
+    width: 60%;
+  }
+  section.app .chat-container .chat .chat-messages .messages .message div span img {
+    width: 225px;
+  }
+}
+
+/*# sourceMappingURL=output.css.map */

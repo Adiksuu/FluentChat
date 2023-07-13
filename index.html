@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fluent Chat</title>
+    <link rel="shortcut icon" href="./src/assets/images/logo.png" type="image/x-icon">
+    <link rel="stylesheet" href="./dist/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqbOAFjoK3iO0A4m8npwdYqhxWTFK8roE",
+            authDomain: "fluentchatapp-3ba60.firebaseapp.com",
+            projectId: "fluentchatapp-3ba60",
+            storageBucket: "fluentchatapp-3ba60.appspot.com",
+            messagingSenderId: "717737139249",
+            appId: "1:717737139249:web:86e52a34606a6e34c0c910"
+        };
+      // Inicjuj Firebase SDK
+      firebase.initializeApp(firebaseConfig);
+
+      // Uzyskaj dostęp do bazy danych Firebase
+      const database = firebase.database();
+    </script>
+</head>
+<body>
+
+   <section class="app">
+    <div class="sidebar">
+        <div class="top">
+            <img src="./src/assets/images/icon.png" alt="">
+        </div>
+        <div class="menu">
+            <button class="toChats active"><i class="far fa-comments"></i></button>
+            <button><i class="fas fa-newspaper"></i></button>
+            <button><i class="far fa-calendar"></i></button>
+        </div>
+        <div class="menu-bottom">
+            <button><i class="fas fa-gear"></i></button>
+        </div>
+    </div>
+    <div class="chat-container">
+        <div class="friends">
+            <div class="navbar">
+                <img src="./src/assets/images/logo-bg.png" alt="">
+                <h1>Fluent</h1>
+            </div>
+            <div class="friends-list">
+                <div class="heading">
+                    <span>Recent chats</span>
+                    <button id="addFriend"><i class="fas fa-plus"></i></button>
+                    <div id="addFriendDiv">
+                        <input id="addFriendInput" type="text" placeholder="Type user email">
+                        <button id="addFriendSubmit"><i class="fas fa-check"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="chat">
+            <div class="navbar">
+                <img src="./src/assets/images/logo-bg.png" alt="">
+                <div class="info">
+                    <h1 id="threadUser"></h1>
+                    <!-- <span><div class="status"></div> Active</span> -->
+                </div>
+                <div class="options">
+                    <button><i class="fas fa-phone"></i></button>
+                </div>
+            </div>
+            <div class="chat-messages">
+                <div class="messages"></div>
+                <div class="send-messages">
+                    <div class="input">
+                        <button><i class="fas fa-smile"></i></button>
+                        <form id="sended_message">
+                            <input type="text" placeholder="Enter message...">
+                        </form>
+                    </div>
+                    <div class="options">
+                        <button onclick="sendMessageAsButton()"><i class="fas fa-paper-plane"></i></button>
+                        <input type="file" id="file-upload">
+                        <label for="file-upload"><i class="fas fa-link"></i></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="user-manage">
+        <div class="bg-blur"></div>
+        <div class="container hide" id="container_reg">
+            <div class="top">
+                <img src="../../src/assets/images/logo.png" alt="">
+            </div>
+            <div class="top_info">
+                <h2>Let's create your account</h2>
+                <p>Create account and get access to typing with other members!</p>
+            </div>
+            <form id="reg_form">
+                <div>
+                    <span>Nickname</span>
+                    <input type="text" id="reg_nickname" placeholder="Enter your nickname" autocomplete="off">
+                </div>
+                <div>
+                    <span>Email address</span>
+                    <input type="email" id="reg_email" placeholder="Enter your email" autocomplete="off">
+                </div>
+                <div>
+                    <span>Password</span>
+                    <input type="password" id="reg_password" placeholder="Enter your password" autocomplete="off">
+                    <i class="fas fa-eye" id="show_pass"></i>
+                </div>
+                <button type="submit"><i class="fas fa-check"></i> Sign up</button>
+                <p>You already have an account? <span onclick="userManage('login')">Sign in</span></p>
+            </form>
+        </div>
+        <div class="container hide" id="container_log">
+            <div class="top">
+                <img src="../../src/assets/images/logo.png" alt="">
+            </div>
+            <div class="top_info">
+                <h2>Welcome back!</h2>
+                <p>Sign in to your account and get access to view dashboard and order websites</p>
+            </div>
+            <form id="log_form">
+                <div>
+                    <span>Email address</span>
+                    <input type="email" id="log_email" placeholder="Enter your email" autocomplete="off">
+                </div>
+                <div>
+                    <span>Password</span>
+                    <input type="password" id="log_password" placeholder="Enter your password" autocomplete="off">
+                    <i class="fas fa-eye" id="show_pass"></i>
+                </div>
+                <button type="submit"><i class="fas fa-check"></i> Sign in</button>
+                <p>You don't have an account? <span onclick="userManage('register')">Sign up</span></p>
+            </form>
+        </div>
+    </div>
+
+   </section>
+
+    <script src="./dist/app.js"></script>
+    
+</body>
+</html>
