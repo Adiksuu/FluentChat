@@ -23,32 +23,46 @@ sended_message.addEventListener('submit', async (e: SubmitEvent) => {
     sendMessageAsButton()
 })
 
-let initialLoad = true; // zmienna do śledzenia pierwszego załadowania wiadomości
+let chatRef: any = null; // Referencja do aktualnego czatu
 
-function addListenerToMessage() {
-    const uid: string = auth.currentUser.uid;
-  
-    // GET THREAD USER
-    getThreadUser().then(async () => {
-      const threadID = [uid, threadUser];
-  
-      const chat: any = rdb.ref(`messages/${threadID.sort()}`);
-  
-      chat.orderByKey().limitToLast(1).on('child_added', (data: any) => {
-        if (initialLoad) {
-          initialLoad = false;
-          return;
-        }
-  
-        // Dodaj tylko ostatnią dodaną wiadomość, jeśli nie jest autorstwa aktualnego użytkownika
-        const created: string = data.val().author;
-        const user: string = auth.currentUser.email;
-        if (created !== user) {
-          sendMessage(data.val());
-        }
-      });
-    });
+async function addListenerToMessage() {
+  const uid: string = auth.currentUser.uid;
+
+  // Wyłącz poprzednie nasłuchiwanie, jeśli istnieje
+  if (chatRef) {
+    chatRef.off();
   }
+
+  // GET THREAD USER
+  await getThreadUser();
+
+  if (threadUser === '') {
+    return;
+  }
+
+  const threadID = [uid, threadUser].sort().join(',');
+
+  const chat: any = rdb.ref(`messages/${threadID}`);
+
+  chatRef = chat; // Zapisz referencję do aktualnego czatu
+
+  let initialLoad = true; // zmienna do śledzenia pierwszego załadowania wiadomości
+
+  chat.limitToLast(1).on('child_added', (data: any) => {
+    if (initialLoad) {
+      initialLoad = false;
+      return;
+    }
+
+    // Dodaj tylko ostatnią dodaną wiadomość, jeśli nie jest autorstwa aktualnego użytkownika
+    const created: string = data.val().author;
+    const user: string = auth.currentUser.email;
+
+    if (created !== user) {
+      sendMessage(data.val());
+    }
+  });
+}
   
 
 
@@ -76,9 +90,9 @@ async function sendMessage(childData: any) {
     // TYPE MESSAGE CONTENT
     if (!childData.url) {
       if (created == user) {
-        message.innerHTML = `<div><h2>${childData.nickname}</h2><span>${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+        message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
       } else {
-        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span>${childData.message}</span></div>`;
+        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
       }
     } else {
       if (childData.url.includes('data:image')) {
@@ -100,6 +114,8 @@ async function sendMessage(childData: any) {
     const messages: HTMLDivElement = document.querySelector('.messages');
     await messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight
+
+    loadLatestMessage()
   }
   
 

@@ -15,8 +15,8 @@ function resetActives() {
     }
 }
 
-function changeChatSelect(friendName: string) {
+async function changeChatSelect(friendName: string) {
     threadUserElement.textContent = friendName
 
-    loadMessages()
+    await loadMessages()
 }

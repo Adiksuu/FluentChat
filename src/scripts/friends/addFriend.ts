@@ -54,6 +54,9 @@ function addFriendToDatabase(nickname: string) {
 }
 
 async function loadFriendsFromDatabase() {
+
+    if (!auth.currentUser) return
+
     const uid: string = auth.currentUser.uid
     const friendsList: HTMLDivElement = document.querySelector('.friends-list')
 

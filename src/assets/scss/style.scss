@@ -250,6 +250,9 @@ section.app {
                             width: 8px;
                             border-radius: 50%;
                             background: $color-main;
+                            &.offline {
+                                background: #a4a4a4;
+                            }
                         }
                     }
                 }
@@ -294,6 +297,7 @@ section.app {
                                 font-weight: 600;
                                 border-radius: 0 16px 16px 16px;
                                 display: flex;
+                                overflow-wrap: anywhere;
                                 img, video {
                                     border-radius: 4px;
                                     width: fit-content;

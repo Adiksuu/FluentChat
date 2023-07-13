@@ -249,6 +249,9 @@ section.app .chat-container .chat .navbar div.info span .status {
   border-radius: 50%;
   background: #1dabad;
 }
+section.app .chat-container .chat .navbar div.info span .status.offline {
+  background: #a4a4a4;
+}
 section.app .chat-container .chat .chat-messages {
   height: calc(100% - 96px);
   display: flex;
@@ -293,6 +296,7 @@ section.app .chat-container .chat .chat-messages .messages .message div span {
   font-weight: 600;
   border-radius: 0 16px 16px 16px;
   display: flex;
+  overflow-wrap: anywhere;
 }
 section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
   border-radius: 4px;

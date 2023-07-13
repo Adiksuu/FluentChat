@@ -89,10 +89,38 @@ function resetActives() {
         friendsList.children[i + 1].classList.remove('active');
     }
 }
-function changeChatSelect(friendName) {
+async function changeChatSelect(friendName) {
     threadUserElement.textContent = friendName;
-    loadMessages();
+    await loadMessages();
 }
+let isWindowActive = true;
+window.addEventListener("beforeunload", () => {
+    const uid = auth.currentUser.uid;
+    firebase.database().ref(`users/${uid}/isWindowActive`).set(false);
+});
+function checkWindowStatus() {
+    if (!document.hidden) {
+        isWindowActive = true;
+    }
+    else {
+        isWindowActive = false;
+    }
+    const uid = auth.currentUser.uid;
+    firebase.database().ref(`users/${uid}/isWindowActive`).set(isWindowActive);
+    const activeStatus = document.querySelector('#activeStatus');
+    rdb.ref(`users/${threadUser}/`).once('value', function (snapshot) {
+        const userIsActive = snapshot.val().isWindowActive;
+        if (userIsActive) {
+            activeStatus.innerHTML = '<div class="status"></div> Online';
+            return;
+        }
+        activeStatus.innerHTML = '<div class="status offline"></div> Offline';
+    });
+}
+window.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("visibilitychange", checkWindowStatus);
+    setInterval(checkWindowStatus, 3000);
+});
 const friends = document.querySelector('.friends');
 const chat = document.querySelector('.chat');
 const toChatsButton = document.querySelector('.toChats');
@@ -143,6 +171,15 @@ window.setTimeout(() => {
         userNickname = snapshot.val().nickname;
     });
 }, 1000);
+let messageSpan = document.querySelectorAll('#message-content');
+let friendActive = document.querySelector('.friend.active');
+function loadLatestMessage() {
+    messageSpan = document.querySelectorAll('#message-content');
+    friendActive = document.querySelector('.friend.active');
+    const messageSpanContent = messageSpan[messageSpan.length - 1].textContent;
+    friendActive.children[1].children[1].textContent = messageSpanContent;
+    friendActive.children[1].children[1].textContent = friendActive.children[1].children[1].textContent.substr(0, 18);
+}
 async function loadMessages() {
     clearChatMessages();
     await getThreadUser();
@@ -167,10 +204,10 @@ async function loadMessages() {
             }
             if (!childData.url) {
                 if (created == user) {
-                    message.innerHTML = `<div><h2>${childData.nickname}</h2><span>${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                    message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                 }
                 else {
-                    message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span>${childData.message}</span></div>`;
+                    message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
                 }
             }
             else {
@@ -192,6 +229,7 @@ async function loadMessages() {
                 }
             }
             messages.appendChild(message);
+            loadLatestMessage();
         });
     });
     messages.scrollTop = messages.scrollHeight;
@@ -239,23 +277,30 @@ sended_message.addEventListener('submit', async (e) => {
     e.preventDefault();
     sendMessageAsButton();
 });
-let initialLoad = true;
-function addListenerToMessage() {
+let chatRef = null;
+async function addListenerToMessage() {
     const uid = auth.currentUser.uid;
-    getThreadUser().then(async () => {
-        const threadID = [uid, threadUser];
-        const chat = rdb.ref(`messages/${threadID.sort()}`);
-        chat.orderByKey().limitToLast(1).on('child_added', (data) => {
-            if (initialLoad) {
-                initialLoad = false;
-                return;
-            }
-            const created = data.val().author;
-            const user = auth.currentUser.email;
-            if (created !== user) {
-                sendMessage(data.val());
-            }
-        });
+    if (chatRef) {
+        chatRef.off();
+    }
+    await getThreadUser();
+    if (threadUser === '') {
+        return;
+    }
+    const threadID = [uid, threadUser].sort().join(',');
+    const chat = rdb.ref(`messages/${threadID}`);
+    chatRef = chat;
+    let initialLoad = true;
+    chat.limitToLast(1).on('child_added', (data) => {
+        if (initialLoad) {
+            initialLoad = false;
+            return;
+        }
+        const created = data.val().author;
+        const user = auth.currentUser.email;
+        if (created !== user) {
+            sendMessage(data.val());
+        }
     });
 }
 async function sendMessage(childData) {
@@ -274,10 +319,10 @@ async function sendMessage(childData) {
     }
     if (!childData.url) {
         if (created == user) {
-            message.innerHTML = `<div><h2>${childData.nickname}</h2><span>${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+            message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
         }
         else {
-            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span>${childData.message}</span></div>`;
+            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
         }
     }
     else {
@@ -301,6 +346,7 @@ async function sendMessage(childData) {
     const messages = document.querySelector('.messages');
     await messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
+    loadLatestMessage();
 }
 async function sendMessageToDatabase(msg) {
     const uid = auth.currentUser.uid;

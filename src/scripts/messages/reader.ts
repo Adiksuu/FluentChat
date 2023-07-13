@@ -18,6 +18,10 @@ imageInput.addEventListener("change", (e: any) => {
     // CREATE THREAD-ID
     getThreadUser();
     const threadID = [uid, threadUser];
+    
+    if (threadUser == '') {
+      return;
+    }
 
     // CREATE MESSAGE ID
     await getMessageID(threadID);

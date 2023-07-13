@@ -39,9 +39,9 @@ async function loadMessages() {
             // TYPE MESSAGE CONTENT
             if (!childData.url) {
               if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname}</h2><span>${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
               } else {
-                message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span>${childData.message}</span></div>`;
+                message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
               }
             } else {
               if (childData.url.includes('data:image')) {
@@ -61,6 +61,7 @@ async function loadMessages() {
             
             // APPEND MESSAGE TO CHAT
             messages.appendChild(message)
+            loadLatestMessage()
 
         });
     });
