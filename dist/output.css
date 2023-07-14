@@ -350,6 +350,24 @@ section.app .chat-container .chat .chat-messages .messages {
 section.app .chat-container .chat .chat-messages .messages::-webkit-scrollbar {
   display: none;
 }
+section.app .chat-container .chat .chat-messages .messages .first-message {
+  width: calc(100% - 32px);
+  height: 32px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  margin-bottom: 32px;
+}
+section.app .chat-container .chat .chat-messages .messages .first-message span {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #1dabad;
+  font-weight: 600;
+}
 section.app .chat-container .chat .chat-messages .messages .message {
   display: flex;
   align-items: center;

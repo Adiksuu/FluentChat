@@ -306,6 +306,20 @@ window.setInterval(() => {
         chat.classList.remove('show');
     }
 }, 300);
+let currentDate;
+function getDate() {
+    const date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+    let hour = date.getHours();
+    let minutes = date.getMinutes();
+    let formattedDay = day < 10 ? `0${day}` : day;
+    let formattedMonth = month < 10 ? `0${month}` : month;
+    let formattedHour = hour < 10 ? `0${hour}` : hour;
+    let formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+    currentDate = `${formattedDay}.${formattedMonth}.${year} ${formattedHour}:${formattedMinutes}`;
+}
 let msgID = 0;
 async function getMessageID(threadID) {
     if (!threadUser.includes('Group_')) {
@@ -374,6 +388,10 @@ async function loadMessages() {
     const uid = auth.currentUser.uid;
     const user = auth.currentUser.email;
     const messages = document.querySelector('.messages');
+    const firstMessage = document.createElement('div');
+    firstMessage.classList.add('first-message');
+    firstMessage.innerHTML = `<span>This is the beginning of a beautiful conversation</span>`;
+    messages.appendChild(firstMessage);
     await getThreadUser();
     let threadID;
     if (!threadUser.includes('Group_')) {
@@ -394,27 +412,27 @@ async function loadMessages() {
                 }
                 if (!childData.url) {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
+                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
                     }
                 }
                 else {
                     if (childData.url.includes('data:image')) {
                         if (created == user) {
-                            message.innerHTML = `<div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                         }
                         else {
-                            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div>`;
+                            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
                         }
                     }
                     else {
                         if (created == user) {
-                            message.innerHTML = `<div><h2>${childData.nickname}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                         }
                         else {
-                            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><video controls src="${childData.url}"></video></span></div>`;
+                            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
                         }
                     }
                 }
@@ -438,27 +456,27 @@ async function loadMessages() {
             }
             if (!childData.url) {
                 if (created == user) {
-                    message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                    message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                 }
                 else {
-                    message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
+                    message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
                 }
             }
             else {
                 if (childData.url.includes('data:image')) {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div>`;
+                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
                     }
                 }
                 else {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><video controls src="${childData.url}"></video></span></div>`;
+                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
                     }
                 }
             }
@@ -479,11 +497,13 @@ imageInput.addEventListener("change", (e) => {
     reader.addEventListener("load", async () => {
         const uid = auth.currentUser.uid;
         const user = auth.currentUser.email;
+        await getDate();
         const data = {
             author: user,
             nickname: userNickname,
             message: '',
             url: reader.result,
+            date: currentDate
         };
         getThreadUser();
         let threadID;
@@ -570,27 +590,27 @@ async function sendMessage(childData) {
     }
     if (!childData.url) {
         if (created == user) {
-            message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
         }
         else {
-            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
+            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
         }
     }
     else {
         if (childData.url.includes('data:image')) {
             if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
             }
             else {
-                message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div>`;
+                message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
             }
         }
         else {
             if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname}</h2><span><video src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><video src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
             }
             else {
-                message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><video src="${childData.url}"></video></span></div>`;
+                message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video src="${childData.url}"></video></span></div>`;
             }
         }
     }
@@ -602,10 +622,12 @@ async function sendMessage(childData) {
 async function sendMessageToDatabase(msg) {
     const uid = auth.currentUser.uid;
     const user = auth.currentUser.email;
+    await getDate();
     const data = {
         message: msg,
         author: user,
         nickname: userNickname,
+        date: currentDate
     };
     await getThreadUser();
     let threadID;
