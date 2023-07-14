@@ -224,12 +224,14 @@ function createRoom() {
     const roomId = generateRoomId();
     console.log('Tworzenie pokoju:', roomId);
     joinRoom(roomId);
+    startCall();
 }
 function joinExistingRoom() {
     const roomId = prompt('Podaj identyfikator pokoju:');
     if (roomId) {
         console.log('Dołączanie do pokoju:', roomId);
         joinRoom(roomId);
+        startCall();
     }
     else {
         console.error("Nie podano identyfikatora pokoju.");
