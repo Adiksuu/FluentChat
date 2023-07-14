@@ -96,7 +96,7 @@ section.app .sidebar .account-settings.show {
   pointer-events: all;
 }
 section.app .sidebar .account-settings span {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
   color: #1dabad;
 }
@@ -160,6 +160,10 @@ section.app .chat-container .friends .friends-list .heading button {
   border-radius: 4px;
   float: right;
   cursor: pointer;
+  margin-left: 8px;
+}
+section.app .chat-container .friends .friends-list .heading button#addFriendSubmit {
+  margin-left: 0;
 }
 section.app .chat-container .friends .friends-list .heading div {
   opacity: 0;
@@ -269,6 +273,7 @@ section.app .chat-container .chat .navbar div.info span {
   color: #929292;
   font-weight: 600;
   font-size: 13px;
+  width: max-content;
 }
 section.app .chat-container .chat .navbar div.info span .status {
   height: 8px;
@@ -278,6 +283,55 @@ section.app .chat-container .chat .navbar div.info span .status {
 }
 section.app .chat-container .chat .navbar div.info span .status.offline {
   background: #a4a4a4;
+}
+section.app .chat-container .chat .navbar div.info span button {
+  height: 26px;
+  width: 26px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+}
+section.app .chat-container .chat .navbar #addUserDiv, section.app .chat-container .chat .navbar #changeGroupDiv {
+  opacity: 0;
+  height: 0;
+  margin-top: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  position: fixed;
+  top: 98px;
+}
+section.app .chat-container .chat .navbar #addUserDiv.show, section.app .chat-container .chat .navbar #changeGroupDiv.show {
+  margin-top: 16px;
+  opacity: 1;
+  height: 42px;
+  pointer-events: all;
+}
+section.app .chat-container .chat .navbar #addUserDiv input, section.app .chat-container .chat .navbar #changeGroupDiv input {
+  display: flex;
+  width: 100%;
+  height: 42px;
+  border-radius: 4px 0 0 4px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  padding: 3px 9px;
+  font-weight: 600;
+  color: #1dabad;
+}
+section.app .chat-container .chat .navbar #addUserDiv input::placeholder, section.app .chat-container .chat .navbar #changeGroupDiv input::placeholder {
+  color: #929292;
+}
+section.app .chat-container .chat .navbar #addUserDiv button, section.app .chat-container .chat .navbar #changeGroupDiv button {
+  float: none;
+  min-width: 42px;
+  min-height: 42px;
+  border-radius: 0 4px 4px 0;
+  height: 28px;
+  width: 28px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  cursor: pointer;
 }
 section.app .chat-container .chat .chat-messages {
   height: calc(100% - 96px);
@@ -394,7 +448,8 @@ section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul
 section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul.emoji-list {
   margin-bottom: 16px;
 }
-section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul button, section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul a {
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul button,
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul a {
   height: 32px;
   width: 32px;
   background: transparent;
@@ -402,7 +457,8 @@ section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul
   cursor: pointer;
   border-radius: 50%;
 }
-section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul button:hover, section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul a:hover {
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul button:hover,
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul a:hover {
   background: rgba(29, 170, 173, 0.1450980392);
 }
 section.app .chat-container .chat .chat-messages .send-messages .input {
@@ -690,7 +746,7 @@ section.app .call-screen .options button.disable {
   section.app .chat-container .chat .chat-messages .send-messages .input {
     width: 60%;
   }
-  section.app .chat-container .chat .chat-messages .messages .message div span img {
+  section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
     width: 205px;
   }
 }
@@ -717,7 +773,7 @@ section.app .call-screen .options button.disable {
   section.app .chat-container .chat .chat-messages .send-messages .input {
     width: 50%;
   }
-  section.app .chat-container .chat .chat-messages .messages .message div span img {
+  section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
     width: 175px;
   }
 }
@@ -743,7 +799,7 @@ section.app .call-screen .options button.disable {
   section.app .chat-container .chat .chat-messages .send-messages .input {
     width: 60%;
   }
-  section.app .chat-container .chat .chat-messages .messages .message div span img {
+  section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
     width: 225px;
   }
 }

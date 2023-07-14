@@ -99,7 +99,7 @@ section.app {
                 pointer-events: all;
             }
             span {
-                font-size: 18px;
+                font-size: 16px;
                 font-weight: 700;
                 color: $color-main;
                 i {
@@ -161,6 +161,10 @@ section.app {
                         border-radius: 4px;
                         float: right;
                         cursor: pointer;
+                        margin-left: 8px;
+                        &#addFriendSubmit {
+                            margin-left: 0;
+                        }
                     }
                     div {
                         opacity: 0;
@@ -275,6 +279,7 @@ section.app {
                         color: #929292;
                         font-weight: 600;
                         font-size: 13px;
+                        width: max-content;
                         .status {
                             height: 8px;
                             width: 8px;
@@ -284,6 +289,55 @@ section.app {
                                 background: #a4a4a4;
                             }
                         }
+                        button {
+                            height: 26px;
+                            width: 26px;
+                            background: #1daaad25;
+                            color: $color-main;
+                            border-radius: 4px;
+                            cursor: pointer;
+                            margin-left: 8px;
+                        }
+                    }
+                }
+                #addUserDiv, #changeGroupDiv {
+                    opacity: 0;
+                    height: 0;
+                    margin-top: 0;
+                    pointer-events: none;
+                    display: flex;
+                    align-items: center;
+                    position: fixed;
+                    top: 98px;
+                    &.show {
+                        margin-top: 16px;
+                        opacity: 1;
+                        height: 42px;
+                        pointer-events: all;
+                    }
+                    input {
+                        display: flex;
+                        width: 100%;
+                        height: 42px;
+                        border-radius: 4px 0 0 4px;
+                        background: #1daaad25;
+                        padding: 3px 9px;
+                        font-weight: 600;
+                        color: $color-main;
+                        &::placeholder {
+                            color: #929292;
+                        }
+                    }
+                    button {
+                        float: none;
+                        min-width: 42px;
+                        min-height: 42px;
+                        border-radius: 0 4px 4px 0;
+                        height: 28px;
+                        width: 28px;
+                        background: #1daaad25;
+                        color: $color-main;
+                        cursor: pointer;
                     }
                 }
             }
@@ -402,7 +456,8 @@ section.app {
                             &.emoji-list {
                                 margin-bottom: 16px;
                             }
-                            button, a {
+                            button,
+                            a {
                                 height: 32px;
                                 width: 32px;
                                 background: transparent;

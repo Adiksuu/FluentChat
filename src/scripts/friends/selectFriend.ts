@@ -5,7 +5,8 @@ async function selectFriend(id: number, friendName: string) {
 
     friendsList.children[id + 1].classList.add('active')
     await changeChatSelect(friendName)
-    addListenerToMessage()
+    await addListenerToMessage()
+    loadGroupName()
 }
 
 function resetActives() {

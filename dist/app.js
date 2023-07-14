@@ -134,7 +134,8 @@ async function selectFriend(id, friendName) {
     await resetActives();
     friendsList.children[id + 1].classList.add('active');
     await changeChatSelect(friendName);
-    addListenerToMessage();
+    await addListenerToMessage();
+    loadGroupName();
 }
 function resetActives() {
     const friendsList = document.querySelector('.friends-list');
@@ -148,12 +149,25 @@ async function changeChatSelect(friendName) {
 }
 let isWindowActive = true;
 window.addEventListener("beforeunload", () => {
+    if (!auth.currentUser)
+        return;
+    if (threadUser.includes('Group_'))
+        return;
     const uid = auth.currentUser.uid;
     firebase.database().ref(`users/${uid}/isWindowActive`).set(false);
 });
 function checkWindowStatus() {
     if (!auth.currentUser)
         return;
+    if (threadUser.includes('Group_')) {
+        const activeStatus = document.querySelector('#activeStatus');
+        rdb.ref(`groups/${threadUser.replace('Group_', '')}/users/`).once('value', function (snapshot) {
+            if (!snapshot.exists())
+                return;
+            activeStatus.innerHTML = `<div class="status"></div> Group | ${snapshot.numChildren()} members <button onclick="toggleAddUsers()"><i class="fas fa-plus"></i></button><button onclick="editGroupName()"><i class="fas fa-pencil"></i></button>`;
+        });
+        return;
+    }
     if (!document.hidden) {
         isWindowActive = true;
     }
@@ -176,6 +190,102 @@ window.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("visibilitychange", checkWindowStatus);
     setInterval(checkWindowStatus, 3000);
 });
+function toggleAddUsers() {
+    const addUserDiv = document.querySelector('#addUserDiv');
+    const changeGroupDiv = document.querySelector('#changeGroupDiv');
+    addUserDiv.classList.toggle('show');
+    changeGroupDiv.classList.remove('show');
+}
+function addUserToGroup(groupID, userUID) {
+    const data = {
+        groupID: groupID,
+        groupName: `Group_${groupID}`,
+    };
+    const userData = {
+        userUID: userUID
+    };
+    rdb.ref(`users/${userUID}/groups/${groupID}`).set(data);
+    rdb.ref(`groups/${groupID}/users/${userUID}`).set(userData);
+}
+const addUserInput = document.querySelector('#addUserInput');
+const addUserSubmit = document.querySelector('#addUserSubmit');
+addUserSubmit.addEventListener('click', async () => {
+    if (addUserInput.value == auth.currentUser.email) {
+        addUserInput.value = '';
+        return;
+    }
+    await rdb.ref(`users/`).once("value", function (snapshot) {
+        snapshot.forEach(function (childSnapshot) {
+            const childData = childSnapshot.val();
+            if (childData.email == addUserInput.value) {
+                addUserToGroup(threadUser.replace('Group_', ''), childData.uid);
+                addUserInput.value = '';
+                return;
+            }
+        });
+    });
+});
+function editGroupName() {
+    const changeGroupDiv = document.querySelector('#changeGroupDiv');
+    const addUserDiv = document.querySelector('#addUserDiv');
+    changeGroupDiv.classList.toggle('show');
+    addUserDiv.classList.remove('show');
+}
+const groupNameInput = document.querySelector('#groupNameInput');
+const groupNameSubmit = document.querySelector('#groupNameSubmit');
+groupNameSubmit.addEventListener('click', () => submitGroupName());
+async function submitGroupName() {
+    const data = {
+        customGroupName: groupNameInput.value
+    };
+    await rdb.ref(`groups/${threadUser.replace('Group_', '')}`).update(data);
+    window.location.reload();
+}
+function loadGroupName() {
+    if (threadUser.includes('Group_')) {
+        rdb.ref(`groups/${threadUser.replace('Group_', '')}`).once('value', function (snapshot) {
+            threadUserElement.textContent = snapshot.val().customGroupName;
+        });
+    }
+}
+async function createGroup() {
+    const groupID = Math.floor(Math.random() * 9999999);
+    const data = {
+        id: groupID,
+        ownerUID: auth.currentUser.uid,
+        groupName: `Group_${groupID}`,
+        customGroupName: `Group_${groupID}`
+    };
+    rdb.ref(`groups/${groupID}`).set(data);
+    await addUserToGroup(groupID.toString(), auth.currentUser.uid);
+    loadGroupsFromDatabase();
+}
+const createGroupButton = document.querySelector('#createGroup');
+createGroupButton.addEventListener('click', () => createGroup());
+async function loadGroupsFromDatabase() {
+    if (!auth.currentUser)
+        return;
+    const uid = auth.currentUser.uid;
+    const friendsList = document.querySelector('.friends-list');
+    await rdb.ref(`users/${uid}/groups/`).once("value", function (snapshot) {
+        snapshot.forEach(async function (childSnapshot) {
+            const childData = childSnapshot.val();
+            const friend = document.createElement('div');
+            const friendID = friendsList.childElementCount - 1;
+            let friendDescription = "Let's start chat!";
+            friend.classList.add('friend');
+            friend.id = friendID;
+            await rdb.ref(`groups/${childData.groupID}`).once('value', function (snapshot) {
+                friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${snapshot.val().customGroupName}</h2><span>${friendDescription}</span></div>`;
+            });
+            friendsList.appendChild(friend);
+            friend.addEventListener('click', () => selectFriend(friendID, childData.groupName));
+        });
+    });
+}
+window.setTimeout(() => {
+    loadGroupsFromDatabase();
+}, 1000);
 const friends = document.querySelector('.friends');
 const chat = document.querySelector('.chat');
 const toChatsButton = document.querySelector('.toChats');
@@ -198,22 +308,42 @@ window.setInterval(() => {
 }, 300);
 let msgID = 0;
 async function getMessageID(threadID) {
-    await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot) {
-        msgID = snapshot.numChildren();
-    });
+    if (!threadUser.includes('Group_')) {
+        await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot) {
+            msgID = snapshot.numChildren();
+        });
+    }
+    else {
+        await rdb.ref(`messages/${threadID}`).once("value", function (snapshot) {
+            msgID = snapshot.numChildren();
+        });
+    }
 }
 let threadUser = '';
 const threadUserElement = document.querySelector('#threadUser');
 async function getThreadUser() {
     const threadUserNickname = threadUserElement.textContent;
-    await rdb.ref(`users/`).once("value", function (snapshot) {
-        snapshot.forEach(function (childSnapshot) {
-            const childData = childSnapshot.val();
-            if (childData.nickname != threadUserNickname)
-                return;
-            threadUser = childData.uid;
+    if (!threadUserNickname.includes('Group_')) {
+        await rdb.ref(`users/`).once("value", function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                const childData = childSnapshot.val();
+                if (childData.nickname != threadUserNickname)
+                    return;
+                threadUser = childData.uid;
+            });
         });
-    });
+    }
+    else {
+        await rdb.ref(`groups/`).once("value", function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                const childData = childSnapshot.val();
+                if (childData.groupName != threadUserNickname)
+                    return;
+                const id = threadUserNickname;
+                threadUser = id;
+            });
+        });
+    }
 }
 let msgAuthor = '';
 let userNickname = '';
@@ -245,7 +375,56 @@ async function loadMessages() {
     const user = auth.currentUser.email;
     const messages = document.querySelector('.messages');
     await getThreadUser();
-    const threadID = [uid, threadUser];
+    let threadID;
+    if (!threadUser.includes('Group_')) {
+        threadID = [uid, threadUser];
+    }
+    else {
+        threadID = threadUser;
+        await rdb.ref(`messages/${threadID}`).once("value", function (snapshot) {
+            snapshot.forEach(function (childSnapshot) {
+                const childData = childSnapshot.val();
+                const message = document.createElement('div');
+                const created = childData.author;
+                if (created == user) {
+                    message.classList.add('message', 'author');
+                }
+                else {
+                    message.classList.add('message');
+                }
+                if (!childData.url) {
+                    if (created == user) {
+                        message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                    }
+                    else {
+                        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
+                    }
+                }
+                else {
+                    if (childData.url.includes('data:image')) {
+                        if (created == user) {
+                            message.innerHTML = `<div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        }
+                        else {
+                            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div>`;
+                        }
+                    }
+                    else {
+                        if (created == user) {
+                            message.innerHTML = `<div><h2>${childData.nickname}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        }
+                        else {
+                            message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><video controls src="${childData.url}"></video></span></div>`;
+                        }
+                    }
+                }
+                messages.appendChild(message);
+                loadLatestMessage();
+                messages.scrollTop = messages.scrollHeight;
+            });
+        });
+        return;
+    }
     await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot) {
         snapshot.forEach(function (childSnapshot) {
             const childData = childSnapshot.val();
@@ -307,13 +486,24 @@ imageInput.addEventListener("change", (e) => {
             url: reader.result,
         };
         getThreadUser();
-        const threadID = [uid, threadUser];
+        let threadID;
+        if (!threadUser.includes('Group_')) {
+            threadID = [uid, threadUser];
+        }
+        else {
+            threadID = threadUser;
+        }
         if (threadUser == '') {
             return;
         }
         await getMessageID(threadID);
         const messageIdWithLeadingZeros = `message_${msgID.toString().padStart(8, '0')}`;
-        firebase.database().ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}/`).set(data);
+        if (!threadUser.includes('Group_')) {
+            await firebase.database().ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}/`).set(data);
+        }
+        else {
+            await firebase.database().ref(`messages/${threadID}/${messageIdWithLeadingZeros}/`).set(data);
+        }
         loadMessages();
     });
     reader.readAsDataURL(file);
@@ -342,7 +532,13 @@ async function addListenerToMessage() {
     if (threadUser === '') {
         return;
     }
-    const threadID = [uid, threadUser].sort().join(',');
+    let threadID;
+    if (!threadUser.includes('Group_')) {
+        threadID = [uid, threadUser].sort().join(',');
+    }
+    else {
+        threadID = threadUser;
+    }
     const chat = rdb.ref(`messages/${threadID}`);
     chatRef = chat;
     let initialLoad = true;
@@ -412,10 +608,23 @@ async function sendMessageToDatabase(msg) {
         nickname: userNickname,
     };
     await getThreadUser();
-    const threadID = [uid, threadUser];
+    let threadID;
+    if (!threadUser.includes('Group_')) {
+        threadID = [uid, threadUser];
+    }
+    else {
+        threadID = threadUser;
+    }
     await getMessageID(threadID);
     const messageIdWithLeadingZeros = `message_${msgID.toString().padStart(8, '0')}`;
-    await rdb.ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}`).set(data);
+    if (!threadUser.includes('Group_')) {
+        await rdb.ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}`).set(data);
+    }
+    else {
+        await rdb.ref(`messages/${threadID}/${messageIdWithLeadingZeros}`).set(data);
+        sendMessage(data);
+        return;
+    }
     if (messageIdWithLeadingZeros == 'message_00000000') {
         let myNickname = '';
         await rdb.ref(`users/${uid}`).once("value", function (snapshot) {

@@ -17,7 +17,12 @@ imageInput.addEventListener("change", (e: any) => {
 
     // CREATE THREAD-ID
     getThreadUser();
-    const threadID = [uid, threadUser];
+    let threadID: any
+    if (!threadUser.includes('Group_')) {
+      threadID = [uid, threadUser];
+    } else {
+      threadID = threadUser
+    }
     
     if (threadUser == '') {
       return;
@@ -28,8 +33,12 @@ imageInput.addEventListener("change", (e: any) => {
 
     // PUBLISH DATA TO DATABASE
     const messageIdWithLeadingZeros = `message_${msgID.toString().padStart(8, '0')}`;
-
-    firebase.database().ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}/`).set(data);
+    
+    if (!threadUser.includes('Group_')) {
+      await firebase.database().ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}/`).set(data);
+    } else {
+      await firebase.database().ref(`messages/${threadID}/${messageIdWithLeadingZeros}/`).set(data);
+    }
 
     loadMessages()
   });

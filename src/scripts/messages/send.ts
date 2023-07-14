@@ -40,7 +40,12 @@ async function addListenerToMessage() {
     return;
   }
 
-  const threadID = [uid, threadUser].sort().join(',');
+  let threadID: any
+  if (!threadUser.includes('Group_')) {
+    threadID = [uid, threadUser].sort().join(',');
+  } else {
+    threadID = threadUser
+  }
 
   const chat: any = rdb.ref(`messages/${threadID}`);
 
@@ -133,14 +138,25 @@ async function sendMessageToDatabase(msg: string) {
 
     // CREATE THREAD-ID
     await getThreadUser();
-    const threadID = [uid, threadUser];
+    let threadID: any
+    if (!threadUser.includes('Group_')) {
+      threadID = [uid, threadUser];
+    } else {
+      threadID = threadUser
+    }
 
     // CREATE MESSAGE ID
     await getMessageID(threadID);
 
     // PUBLISH DATA TO DATABASE
     const messageIdWithLeadingZeros = `message_${msgID.toString().padStart(8, '0')}`;
-    await rdb.ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}`).set(data);
+    if (!threadUser.includes('Group_')) {
+      await rdb.ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}`).set(data);
+    } else {
+      await rdb.ref(`messages/${threadID}/${messageIdWithLeadingZeros}`).set(data);
+      sendMessage(data);
+      return
+    }
 
     if (messageIdWithLeadingZeros == 'message_00000000') {
       let myNickname: string = ''
