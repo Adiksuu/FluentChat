@@ -141,6 +141,128 @@ window.setInterval(() => {
         chat.classList.remove('show');
     }
 }, 300);
+const endCallButton = document.querySelector('.call-option-end');
+const callScreen = document.querySelector(".call-screen");
+async function startCall() {
+    try {
+        callScreen.classList.add('show');
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        const localVideo = document.querySelector("#localVideo");
+        localVideo.srcObject = stream;
+        console.log(stream);
+        const pc = new RTCPeerConnection();
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                sendIceCandidate(event.candidate);
+            }
+        };
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        sendSignal('offer', offer);
+        rdb.ref('signal/answer').on('value', (snapshot) => {
+            const answer = snapshot.val();
+            if (answer) {
+                pc.setRemoteDescription(new RTCSessionDescription(answer));
+            }
+        });
+        rdb.ref('signal/iceCandidate').on('child_added', (snapshot) => {
+            const iceCandidate = snapshot.val();
+            if (iceCandidate) {
+                pc.addIceCandidate(new RTCIceCandidate(iceCandidate));
+            }
+        });
+    }
+    catch (error) {
+        console.error("Błąd rozpoczynania rozmowy:", error);
+    }
+}
+function sendSignal(signalType, signalData) {
+    rdb.ref(`signal/${signalType}`).set(signalData);
+}
+async function joinRoom(roomId) {
+    try {
+        callScreen.classList.add('show');
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        const localVideo = document.querySelector("#localVideo");
+        localVideo.srcObject = stream;
+        console.log(stream);
+        const pc = new RTCPeerConnection();
+        stream.getTracks().forEach((track) => pc.addTrack(track, stream));
+        pc.onicecandidate = (event) => {
+            if (event.candidate) {
+                sendIceCandidate(event.candidate);
+            }
+        };
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        sendSignal('offer', offer);
+        rdb.ref(`rooms/${roomId}/answer`).on('value', (snapshot) => {
+            const answer = snapshot.val();
+            if (answer) {
+                pc.setRemoteDescription(new RTCSessionDescription(answer));
+            }
+        });
+        rdb.ref(`rooms/${roomId}/iceCandidate`).on('child_added', (snapshot) => {
+            const iceCandidate = snapshot.val();
+            if (iceCandidate) {
+                pc.addIceCandidate(new RTCIceCandidate(iceCandidate));
+            }
+        });
+    }
+    catch (error) {
+        console.error("Błąd dołączania do pokoju:", error);
+    }
+}
+function sendIceCandidate(candidate) {
+    rdb.ref(`signal/iceCandidate`).push(candidate);
+}
+function generateRoomId() {
+    return Math.random().toString(36).substring(2, 8);
+}
+function createRoom() {
+    const roomId = generateRoomId();
+    console.log('Tworzenie pokoju:', roomId);
+    joinRoom(roomId);
+}
+function joinExistingRoom() {
+    const roomId = prompt('Podaj identyfikator pokoju:');
+    if (roomId) {
+        console.log('Dołączanie do pokoju:', roomId);
+        joinRoom(roomId);
+    }
+    else {
+        console.error("Nie podano identyfikatora pokoju.");
+    }
+}
+const callButton = document.querySelector("#callButton");
+callButton.addEventListener("click", createRoom);
+const joinRoomButton = document.querySelector("#joinRoomButton");
+joinRoomButton.addEventListener("click", joinExistingRoom);
+const callOption = document.querySelectorAll('.call-option');
+callOption.forEach(option => {
+    option.addEventListener('click', () => {
+        option.classList.toggle('disable');
+    });
+});
+const muteOption = document.querySelector('.call-option-mute');
+const videoOption = document.querySelector('.call-option-video');
+muteOption.addEventListener('click', () => {
+    if (muteOption.innerHTML == '<i class="fas fa-microphone"></i>') {
+        muteOption.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+    }
+    else {
+        muteOption.innerHTML = '<i class="fas fa-microphone"></i>';
+    }
+});
+videoOption.addEventListener('click', () => {
+    if (videoOption.innerHTML == '<i class="fas fa-video"></i>') {
+        videoOption.innerHTML = '<i class="fas fa-video-slash"></i>';
+    }
+    else {
+        videoOption.innerHTML = '<i class="fas fa-video"></i>';
+    }
+});
 let msgID = 0;
 async function getMessageID(threadID) {
     await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot) {

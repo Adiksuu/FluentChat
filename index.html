@@ -71,7 +71,8 @@
                     <span id="activeStatus"></span>
                 </div>
                 <div class="options">
-                    <button><i class="fas fa-phone"></i></button>
+                    <button id="callButton"><i class="fas fa-phone"></i></button>
+                    <button id="joinRoomButton"><i class="fas fa-check"></i></button>
                 </div>
             </div>
             <div class="chat-messages">
@@ -90,6 +91,18 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="call-screen">
+        <div class="screens">
+            <div class="screen"><video id="localVideo" autoplay></video></div>
+            <div class="screen"><video id="remoteVideo" autoplay></video></div>
+        </div>
+        <div class="options">
+            <button class="call-option call-option-mute"><i class="fas fa-microphone"></i></button>
+            <button class="call-option call-option-video"><i class="fas fa-video"></i></button>
+            <button class="disable call-option-end"><i class="fas fa-phone-slash"></i></button>
         </div>
     </div>
 

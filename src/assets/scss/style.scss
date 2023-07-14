@@ -544,10 +544,81 @@ section.app {
             }
         }
     }
+    .call-screen {
+        height: 100%;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        background: #f3f3f3;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        display: none;
+        &.show {
+            display: flex;
+        }
+        .screens {
+            padding: 64px;
+            display: flex;
+            justify-content: space-around;
+            .screen {
+                width: 596px;
+                height: 296px;
+                border-radius: 4px;
+                background: #fff;
+                video {
+                    width: 100%;
+                    height: 100%;
+                    border-radius: 4px;
+                    object-fit: cover;
+                }
+            }
+        }
+        .options {
+            padding: 64px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 48px;
+            height: 100%;
+            button {
+                height: 42px;
+                width: 42px;
+                background: #1daaad25;
+                color: $color-main;
+                border-radius: 4px;
+                cursor: pointer;
+                &.disable {
+                    background: #ad1d1d25;
+                    color: #ad1d1d;
+                }
+            }
+        }
+    }
+}
+
+@media screen and (max-width: 1300px) {
+    section.app {
+        .call-screen {
+            .screens {
+                .screen {
+                    width: 475px;
+                }
+            }
+        }
+    }
 }
 
 @media screen and (max-width: 1120px) {
     section.app {
+        .call-screen {
+            .screens {
+                .screen {
+                    width: 405px;
+                }
+            }
+        }
         .chat-container {
             .chat {
                 .chat-messages {
@@ -564,6 +635,13 @@ section.app {
 
 @media screen and (max-width: 950px) {
     section.app {
+        .call-screen {
+            .screens {
+                .screen {
+                    width: 355px;
+                }
+            }
+        }
         .chat-container {
             .chat {
                 .chat-messages {
@@ -591,6 +669,21 @@ section.app {
 
 @media screen and (max-width: 768px) {
     section.app {
+        .call-screen {
+            .screens {
+                flex-direction: column;
+                align-items: center;
+                gap: 16px;
+                padding: 32px;
+                .screen {
+                    width: calc(100% - 32px);
+                }
+            }
+            .options {
+                padding: 0;
+                align-items: flex-start;
+            }
+        }
         .sidebar {
             min-width: 72px;
         }

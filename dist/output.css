@@ -533,13 +533,76 @@ section.app .user-manage.show .bg-blur {
   opacity: 1;
   pointer-events: all;
 }
+section.app .call-screen {
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  background: #f3f3f3;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  display: none;
+}
+section.app .call-screen.show {
+  display: flex;
+}
+section.app .call-screen .screens {
+  padding: 64px;
+  display: flex;
+  justify-content: space-around;
+}
+section.app .call-screen .screens .screen {
+  width: 596px;
+  height: 296px;
+  border-radius: 4px;
+  background: #fff;
+}
+section.app .call-screen .screens .screen video {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  object-fit: cover;
+}
+section.app .call-screen .options {
+  padding: 64px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 48px;
+  height: 100%;
+}
+section.app .call-screen .options button {
+  height: 42px;
+  width: 42px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  border-radius: 4px;
+  cursor: pointer;
+}
+section.app .call-screen .options button.disable {
+  background: rgba(173, 29, 29, 0.1450980392);
+  color: #ad1d1d;
+}
 
+@media screen and (max-width: 1300px) {
+  section.app .call-screen .screens .screen {
+    width: 475px;
+  }
+}
 @media screen and (max-width: 1120px) {
+  section.app .call-screen .screens .screen {
+    width: 405px;
+  }
   section.app .chat-container .chat .chat-messages .send-messages .input {
     width: 70%;
   }
 }
 @media screen and (max-width: 950px) {
+  section.app .call-screen .screens .screen {
+    width: 355px;
+  }
   section.app .chat-container .chat .chat-messages .send-messages .input {
     width: 60%;
   }
@@ -548,6 +611,19 @@ section.app .user-manage.show .bg-blur {
   }
 }
 @media screen and (max-width: 768px) {
+  section.app .call-screen .screens {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 32px;
+  }
+  section.app .call-screen .screens .screen {
+    width: calc(100% - 32px);
+  }
+  section.app .call-screen .options {
+    padding: 0;
+    align-items: flex-start;
+  }
   section.app .sidebar {
     min-width: 72px;
   }
