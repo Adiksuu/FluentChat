@@ -7,6 +7,9 @@ window.addEventListener("beforeunload", () => {
 
 
 function checkWindowStatus() {
+
+  if (!auth.currentUser) return
+
   if (!document.hidden) {
     isWindowActive = true;
   } else {

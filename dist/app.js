@@ -152,6 +152,8 @@ window.addEventListener("beforeunload", () => {
     firebase.database().ref(`users/${uid}/isWindowActive`).set(false);
 });
 function checkWindowStatus() {
+    if (!auth.currentUser)
+        return;
     if (!document.hidden) {
         isWindowActive = true;
     }
@@ -231,7 +233,7 @@ function loadLatestMessage() {
     friendActive = document.querySelector('.friend.active');
     const messageSpanContent = messageSpan[messageSpan.length - 1].textContent;
     friendActive.children[1].children[1].textContent = messageSpanContent;
-    friendActive.children[1].children[1].textContent = friendActive.children[1].children[1].textContent.substr(0, 18);
+    friendActive.children[1].children[1].textContent = `${friendActive.children[1].children[1].textContent.substr(0, 21)}...`;
 }
 async function loadMessages() {
     clearChatMessages();
@@ -481,6 +483,17 @@ function login(email, password) {
         let error_message = error.message;
         console.error(error_message);
     });
+}
+const showAccountSettingsButton = document.querySelector('#showAccountSettings');
+const accountSettings = document.querySelector('.account-settings');
+showAccountSettingsButton.addEventListener('click', () => showAccountSettings());
+function showAccountSettings() {
+    accountSettings.classList.toggle('show');
+}
+accountSettings.addEventListener('click', () => logout());
+async function logout() {
+    await auth.signOut();
+    window.location.reload();
 }
 let currentAuth = 'register';
 setTimeout(() => {

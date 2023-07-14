@@ -7,5 +7,5 @@ function loadLatestMessage() {
 
     const messageSpanContent = messageSpan[messageSpan.length - 1].textContent
     friendActive.children[1].children[1].textContent = messageSpanContent
-    friendActive.children[1].children[1].textContent =  friendActive.children[1].children[1].textContent.substr(0, 18)
+    friendActive.children[1].children[1].textContent = `${friendActive.children[1].children[1].textContent.substr(0, 21)}...`
 }
