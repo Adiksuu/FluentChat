@@ -298,7 +298,8 @@ section.app .chat-container .chat .chat-messages .messages .message div span {
   display: flex;
   overflow-wrap: anywhere;
 }
-section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
+section.app .chat-container .chat .chat-messages .messages .message div span img,
+section.app .chat-container .chat .chat-messages .messages .message div span video {
   border-radius: 4px;
   width: fit-content;
   object-fit: contain;
@@ -314,12 +315,68 @@ section.app .chat-container .chat .chat-messages .messages .message.author div s
   border-radius: 16px 0 16px 16px;
 }
 section.app .chat-container .chat .chat-messages .send-messages {
-  height: 86px;
+  min-height: 86px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-top: 2px solid rgba(227, 227, 227, 0.3568627451);
   gap: 16px;
+  position: relative;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup {
+  position: absolute;
+  left: 16px;
+  bottom: 102px;
+  z-index: 1;
+  height: 156px;
+  width: 256px;
+  background: #fff;
+  padding: 0 16px;
+  overflow-y: auto;
+  border-radius: 4px;
+  opacity: 0;
+  pointer-events: none;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup.show {
+  opacity: 1;
+  pointer-events: all;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup::-webkit-scrollbar {
+  display: none;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul:nth-child(1) {
+  display: flex;
+  margin-bottom: 12px;
+  position: fixed;
+  background: #fff;
+  padding: 8px 0;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul:nth-child(1) a {
+  font-size: 14px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+  width: 32px;
+  color: #1dabad;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul:nth-child(2) {
+  margin-top: 48px;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul.emoji-list {
+  margin-bottom: 16px;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul button, section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul a {
+  height: 32px;
+  width: 32px;
+  background: transparent;
+  font-size: 18px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul button:hover, section.app .chat-container .chat .chat-messages .send-messages .emojis-popup ul a:hover {
+  background: rgba(29, 170, 173, 0.1450980392);
 }
 section.app .chat-container .chat .chat-messages .send-messages .input {
   width: 80%;
@@ -332,7 +389,7 @@ section.app .chat-container .chat .chat-messages .send-messages .input button {
   width: 42px;
   background: #f1f0f7;
   border-radius: 16px 0 0 16px;
-  color: #A9ABAC;
+  color: #a9abac;
   cursor: pointer;
 }
 section.app .chat-container .chat .chat-messages .send-messages .input button:hover {
@@ -362,7 +419,7 @@ section.app .chat-container .chat .chat-messages .send-messages .options button 
   width: 42px;
   background: #f1f0f7;
   border-radius: 16px;
-  color: #A9ABAC;
+  color: #a9abac;
   cursor: pointer;
 }
 section.app .chat-container .chat .chat-messages .send-messages .options button:hover {
@@ -377,7 +434,7 @@ section.app .chat-container .chat .chat-messages .send-messages .options label {
   width: 42px;
   background: #f1f0f7;
   border-radius: 16px;
-  color: #A9ABAC;
+  color: #a9abac;
   cursor: pointer;
   display: flex;
   justify-content: center;

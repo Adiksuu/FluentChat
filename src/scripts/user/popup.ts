@@ -1,7 +1,7 @@
 let currentAuth = 'register'
 setTimeout(() => {
     checkAuth()
-}, 1000);
+}, 2000);
 
 function userManage(auth: string) {
     currentAuth = auth

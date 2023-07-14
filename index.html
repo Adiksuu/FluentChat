@@ -77,10 +77,28 @@
             <div class="chat-messages">
                 <div class="messages"></div>
                 <div class="send-messages">
+                    <div class="emojis-popup">
+                        <ul>
+                            <a href="#emoji-face"><i class="fas fa-smile"></i></a>
+                            <a href="#emoji-animals"><i class="fas fa-paw"></i></a>
+                            <a href="#emoji-food"><i class="fas fa-burger"></i></a>
+                            <a href="#emoji-transport"><i class="fas fa-car"></i></a>
+                            <a href="#emoji-extra"><i class="fas fa-book"></i></a>
+                            <a href="#emoji-icons"><i class="fas fa-icons"></i></a>
+                            <a href="#emoji-flags"><i class="fas fa-flag"></i></a>
+                        </ul>
+                        <ul class="emoji-list emoji-face" id="emoji-face"></ul>
+                        <ul class="emoji-list emoji-animals" id="emoji-animals"></ul>
+                        <ul class="emoji-list emoji-food" id="emoji-food"></ul>
+                        <ul class="emoji-list emoji-transport" id="emoji-transport"></ul>
+                        <ul class="emoji-list emoji-extra" id="emoji-extra"></ul>
+                        <ul class="emoji-list emoji-icons" id="emoji-icons"></ul>
+                        <ul class="emoji-list emoji-flags" id="emoji-flags"></ul>
+                      </div>                      
                     <div class="input">
-                        <button><i class="fas fa-smile"></i></button>
+                        <button id="showEmoji"><i class="fas fa-smile"></i></button>
                         <form id="sended_message">
-                            <input type="text" placeholder="Enter message...">
+                            <input autocomplete="off" id="sendMessageInput" type="text" placeholder="Enter message...">
                         </form>
                     </div>
                     <div class="options">
