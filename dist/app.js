@@ -306,6 +306,30 @@ window.setInterval(() => {
         chat.classList.remove('show');
     }
 }, 300);
+document.addEventListener("contextmenu", function (event) {
+    event.preventDefault();
+});
+function loadDelMenus() {
+    const buttons = document.querySelectorAll('button[id*="message_"]');
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => deleteMessage(button.id));
+    });
+}
+async function deleteMessage(ID) {
+    await getThreadUser();
+    let threadID;
+    const uid = auth.currentUser.uid;
+    if (!threadUser.includes('Group_')) {
+        threadID = [uid, threadUser];
+        rdb.ref(`messages/${threadID.sort().join(',')}/${ID}`).remove();
+    }
+    else {
+        threadID = threadUser;
+        rdb.ref(`messages/${threadID}/${ID}`).remove();
+    }
+    await rdb.ref(`messages/${threadID}/${ID}`).remove();
+    window.location.reload();
+}
 let currentDate;
 function getDate() {
     const date = new Date();
@@ -322,16 +346,21 @@ function getDate() {
 }
 let msgID = 0;
 async function getMessageID(threadID) {
+    let snapshot;
     if (!threadUser.includes('Group_')) {
-        await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot) {
-            msgID = snapshot.numChildren();
-        });
+        snapshot = await rdb.ref(`messages/${threadID.sort()}`).once("value");
     }
     else {
-        await rdb.ref(`messages/${threadID}`).once("value", function (snapshot) {
-            msgID = snapshot.numChildren();
-        });
+        snapshot = await rdb.ref(`messages/${threadID}`).once("value");
     }
+    const messageIDs = Object.keys(snapshot.val());
+    const availableMessageIDs = [];
+    for (const messageID of messageIDs) {
+        const numberPart = messageID.split("_")[1];
+        availableMessageIDs.push(parseInt(numberPart));
+    }
+    const maxMessageID = Math.max(...availableMessageIDs);
+    msgID = maxMessageID + 1;
 }
 let threadUser = '';
 const threadUserElement = document.querySelector('#threadUser');
@@ -402,6 +431,7 @@ async function loadMessages() {
         await rdb.ref(`messages/${threadID}`).once("value", function (snapshot) {
             snapshot.forEach(function (childSnapshot) {
                 const childData = childSnapshot.val();
+                const childKey = childSnapshot.key;
                 const message = document.createElement('div');
                 const created = childData.author;
                 if (created == user) {
@@ -412,7 +442,7 @@ async function loadMessages() {
                 }
                 if (!childData.url) {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                     }
                     else {
                         message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
@@ -421,7 +451,7 @@ async function loadMessages() {
                 else {
                     if (childData.url.includes('data:image')) {
                         if (created == user) {
-                            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                         }
                         else {
                             message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
@@ -429,7 +459,7 @@ async function loadMessages() {
                     }
                     else {
                         if (created == user) {
-                            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                         }
                         else {
                             message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
@@ -441,11 +471,13 @@ async function loadMessages() {
                 messages.scrollTop = messages.scrollHeight;
             });
         });
+        loadDelMenus();
         return;
     }
     await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot) {
         snapshot.forEach(function (childSnapshot) {
             const childData = childSnapshot.val();
+            const childKey = childSnapshot.key;
             const message = document.createElement('div');
             const created = childData.author;
             if (created == user) {
@@ -456,7 +488,7 @@ async function loadMessages() {
             }
             if (!childData.url) {
                 if (created == user) {
-                    message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                    message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                 }
                 else {
                     message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
@@ -465,7 +497,7 @@ async function loadMessages() {
             else {
                 if (childData.url.includes('data:image')) {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                     }
                     else {
                         message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
@@ -473,7 +505,7 @@ async function loadMessages() {
                 }
                 else {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
                     }
                     else {
                         message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
@@ -485,6 +517,7 @@ async function loadMessages() {
         });
     });
     messages.scrollTop = messages.scrollHeight;
+    loadDelMenus();
 }
 function clearChatMessages() {
     const messages = document.querySelector('.messages');
@@ -569,12 +602,13 @@ async function addListenerToMessage() {
         }
         const created = data.val().author;
         const user = auth.currentUser.email;
+        const childKey = data.key;
         if (created !== user) {
-            sendMessage(data.val());
+            sendMessage(data.val(), childKey);
         }
     });
 }
-async function sendMessage(childData) {
+async function sendMessage(childData, childKey) {
     await getThreadUser();
     if (threadUser == '') {
         return;
@@ -590,7 +624,7 @@ async function sendMessage(childData) {
     }
     if (!childData.url) {
         if (created == user) {
-            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+            message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
         }
         else {
             message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
@@ -599,7 +633,7 @@ async function sendMessage(childData) {
     else {
         if (childData.url.includes('data:image')) {
             if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
             }
             else {
                 message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
@@ -607,7 +641,7 @@ async function sendMessage(childData) {
         }
         else {
             if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><span><video src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
             }
             else {
                 message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video src="${childData.url}"></video></span></div>`;
@@ -618,6 +652,7 @@ async function sendMessage(childData) {
     await messages.appendChild(message);
     messages.scrollTop = messages.scrollHeight;
     loadLatestMessage();
+    loadDelMenus();
 }
 async function sendMessageToDatabase(msg) {
     const uid = auth.currentUser.uid;
@@ -644,7 +679,7 @@ async function sendMessageToDatabase(msg) {
     }
     else {
         await rdb.ref(`messages/${threadID}/${messageIdWithLeadingZeros}`).set(data);
-        sendMessage(data);
+        sendMessage(data, messageIdWithLeadingZeros);
         return;
     }
     if (messageIdWithLeadingZeros == 'message_00000000') {
@@ -661,7 +696,7 @@ async function sendMessageToDatabase(msg) {
             }
         });
     }
-    sendMessage(data);
+    sendMessage(data, messageIdWithLeadingZeros);
 }
 const auth = firebase.auth();
 const rdb = firebase.database();

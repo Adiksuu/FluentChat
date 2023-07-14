@@ -63,15 +63,17 @@ async function addListenerToMessage() {
     const created: string = data.val().author;
     const user: string = auth.currentUser.email;
 
+    const childKey = data.key
+
     if (created !== user) {
-      sendMessage(data.val());
+      sendMessage(data.val(), childKey);
     }
   });
 }
   
 
 
-async function sendMessage(childData: any) {
+async function sendMessage(childData: any, childKey: any) {
     // GET THREAD USER
     await getThreadUser();
     if (threadUser == '') {
@@ -95,22 +97,22 @@ async function sendMessage(childData: any) {
     // TYPE MESSAGE CONTENT
     if (!childData.url) {
       if (created == user) {
-        message.innerHTML = `<div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
       } else {
-        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span id="message-content">${childData.message}</span></div>`;
+        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
       }
     } else {
       if (childData.url.includes('data:image')) {
         if (created == user) {
-          message.innerHTML = `<div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
         } else {
-          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><img src="${childData.url}"></img></span></div>`;
+          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
         }
       } else {
         if (created == user) {
-          message.innerHTML = `<div><h2>${childData.nickname}</h2><span><video src="${childData.url}"></video></span></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
         } else {
-          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span><video src="${childData.url}"></video></span></div>`;
+          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video src="${childData.url}"></video></span></div>`;
         }
       }
     }
@@ -121,6 +123,7 @@ async function sendMessage(childData: any) {
     messages.scrollTop = messages.scrollHeight
 
     loadLatestMessage()
+    loadDelMenus()
   }
   
 
@@ -130,10 +133,12 @@ async function sendMessageToDatabase(msg: string) {
     const user: string = auth.currentUser.email;
 
     // CREATE DATA TO PUBLISH
+    await getDate()
     const data = {
         message: msg,
         author: user,
         nickname: userNickname,
+        date: currentDate
     };
 
     // CREATE THREAD-ID
@@ -154,7 +159,7 @@ async function sendMessageToDatabase(msg: string) {
       await rdb.ref(`messages/${threadID.sort()}/${messageIdWithLeadingZeros}`).set(data);
     } else {
       await rdb.ref(`messages/${threadID}/${messageIdWithLeadingZeros}`).set(data);
-      sendMessage(data);
+      sendMessage(data, messageIdWithLeadingZeros);
       return
     }
 
@@ -177,5 +182,5 @@ async function sendMessageToDatabase(msg: string) {
     }
 
     // SEND MESSAGE TO DISPLAY
-    sendMessage(data);
+    sendMessage(data, messageIdWithLeadingZeros);
 }

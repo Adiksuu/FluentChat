@@ -1,12 +1,26 @@
-let msgID: number = 0
+let msgID: number = 0;
+
 async function getMessageID(threadID: any) {
+    let snapshot: any;
+
     if (!threadUser.includes('Group_')) {
-        await rdb.ref(`messages/${threadID.sort()}`).once("value", function (snapshot: any) {
-            msgID = snapshot.numChildren()
-        })
+        snapshot = await rdb.ref(`messages/${threadID.sort()}`).once("value");
     } else {
-        await rdb.ref(`messages/${threadID}`).once("value", function (snapshot: any) {
-            msgID = snapshot.numChildren()
-        })
+        snapshot = await rdb.ref(`messages/${threadID}`).once("value");
     }
+
+    const messageIDs = Object.keys(snapshot.val());
+
+    // Sprawdzenie, które message_ID są dostępne
+    const availableMessageIDs = [];
+    for (const messageID of messageIDs) {
+        const numberPart = messageID.split("_")[1];
+        availableMessageIDs.push(parseInt(numberPart));
+    }
+
+    // Znalezienie największego message_ID
+    const maxMessageID = Math.max(...availableMessageIDs);
+
+    // Zwiększenie msgID o 1
+    msgID = maxMessageID + 1;
 }

@@ -8,11 +8,13 @@ imageInput.addEventListener("change", (e: any) => {
     const uid: string = auth.currentUser.uid;
     const user: string = auth.currentUser.email;
 
+    await getDate()
     const data = {
       author: user,
       nickname: userNickname,
       message: '',
       url: reader.result,
+      date: currentDate
     };
 
     // CREATE THREAD-ID

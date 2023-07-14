@@ -404,6 +404,26 @@ section.app .chat-container .chat .chat-messages .messages .message div span vid
   object-fit: contain;
   max-height: 156px;
 }
+section.app .chat-container .chat .chat-messages .messages .message #message-options {
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+}
+section.app .chat-container .chat .chat-messages .messages .message #message-options button {
+  height: 32px;
+  width: 32px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  font-size: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+}
+section.app .chat-container .chat .chat-messages .messages .message:hover #message-options button {
+  opacity: 1;
+  pointer-events: all;
+}
 section.app .chat-container .chat .chat-messages .messages .message.author {
   justify-content: flex-end;
 }
@@ -412,6 +432,10 @@ section.app .chat-container .chat .chat-messages .messages .message.author div h
 }
 section.app .chat-container .chat .chat-messages .messages .message.author div span {
   border-radius: 16px 0 16px 16px;
+}
+section.app .chat-container .chat .chat-messages .messages .message.author #message-options {
+  flex-direction: row;
+  justify-content: flex-end;
 }
 section.app .chat-container .chat .chat-messages .send-messages {
   min-height: 86px;
