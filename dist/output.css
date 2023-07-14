@@ -384,7 +384,7 @@ section.app .chat-container .chat .chat-messages .messages .message div span vid
   border-radius: 4px;
   width: fit-content;
   object-fit: contain;
-  height: 156px;
+  max-height: 156px;
 }
 section.app .chat-container .chat .chat-messages .messages .message.author {
   justify-content: flex-end;
