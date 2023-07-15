@@ -25,6 +25,8 @@ async function addFriend() {
             if (childData.email == addFriendInput.value) {
                 const friend = document.createElement('div')
                 const friendID: any = friendsList.childElementCount - 1
+
+                const friendUID = childData.uid
             
                 let friendDescription: string = "Let's start chat!"
             
@@ -33,7 +35,7 @@ async function addFriend() {
                 friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span>${friendDescription}</span></div>`
             
                 friendsList.appendChild(friend)
-                addFriendToDatabase(childData.nickname)
+                addFriendToDatabase(childData.nickname, friendUID)
                 friend.addEventListener('click', () => selectFriend(friendID, childData.nickname))
                 addFriendInput.value = ''
                 return            
@@ -43,11 +45,12 @@ async function addFriend() {
 
 }
 
-function addFriendToDatabase(nickname: string) {
+function addFriendToDatabase(nickname: string, friendUID: string) {
     const uid: string = auth.currentUser.uid
 
     const data = {
-        friend: nickname
+        friend: nickname,
+        uid: friendUID
     }
 
     rdb.ref(`users/${uid}/friends/friend_${nickname}`).set(data)
@@ -71,7 +74,13 @@ async function loadFriendsFromDatabase() {
             
                 friend.classList.add('friend')
                 friend.id = friendID
-                friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`
+                rdb.ref(`users/${childData.uid}`).once('value', function (snapshot: any) {
+                    if (snapshot.val().url) {
+                        friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`
+                    } else {
+                        friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`
+                    }
+                })
             
                 friendsList.appendChild(friend)
                 friend.addEventListener('click', () => selectFriend(friendID, childData.friend))

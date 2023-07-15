@@ -110,9 +110,9 @@ async function sendMessage(childData: any, childKey: any) {
         }
       } else {
         if (created == user) {
-          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video controls src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
         } else {
-          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video src="${childData.url}"></video></span></div>`;
+          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
         }
       }
     }

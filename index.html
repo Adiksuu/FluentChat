@@ -35,7 +35,10 @@
    <section class="app">
     <div class="sidebar">
         <div class="top">
-            <img src="./src/assets/images/icon.png" alt="">
+            <input type="file" id="image-upload" accept="image/*">
+            <label for="image-upload">
+                <img id="imageToChange" src="./src/assets/images/logo.png" alt="">
+            </label>
         </div>
         <div class="menu">
             <button class="toChats active"><i class="far fa-comments"></i></button>
@@ -58,7 +61,7 @@
             <div class="friends-list">
                 <div class="heading">
                     <span>Recent chats</span>
-                    <button id="addFriend"><i class="fas fa-plus"></i></button>
+                    <button id="addFriend"><i class="fas fa-user-plus"></i></button>
                     <button id="createGroup"><i class="fas fa-pencil"></i></button>
                     <div id="addFriendDiv">
                         <input id="addFriendInput" type="text" placeholder="Type user email">

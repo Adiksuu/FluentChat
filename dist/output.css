@@ -34,10 +34,14 @@ section.app .sidebar {
 section.app .sidebar .top {
   margin-top: 24px;
 }
-section.app .sidebar .top img {
+section.app .sidebar .top input {
+  display: none;
+}
+section.app .sidebar .top label img {
   width: 48px;
   height: 48px;
   border-radius: 4px;
+  cursor: pointer;
 }
 section.app .sidebar .menu {
   display: flex;
@@ -104,7 +108,7 @@ section.app .sidebar .account-settings span i {
   margin-right: 4px;
 }
 section.app .chat-container {
-  width: 100%;
+  width: calc(100% - 96px);
   height: 100%;
   display: flex;
 }
@@ -352,14 +356,16 @@ section.app .chat-container .chat .chat-messages .messages::-webkit-scrollbar {
 }
 section.app .chat-container .chat .chat-messages .messages .first-message {
   width: calc(100% - 32px);
-  height: 32px;
+  height: fit-content;
   background: rgba(29, 170, 173, 0.1450980392);
   border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 3px 9px;
   margin: 0 auto;
   margin-bottom: 32px;
+  text-align: center;
 }
 section.app .chat-container .chat .chat-messages .messages .first-message span {
   display: flex;
@@ -809,6 +815,9 @@ section.app .call-screen .options button.disable {
   section.app .sidebar {
     min-width: 72px;
   }
+  section.app .chat-container {
+    width: calc(100% - 72px);
+  }
   section.app .chat-container .friends {
     min-width: 256px;
   }
@@ -826,6 +835,9 @@ section.app .call-screen .options button.disable {
   section.app .sidebar {
     min-width: 72px;
   }
+  section.app .chat-container {
+    width: calc(100% - 72px);
+  }
   section.app .chat-container .friends {
     min-width: 100%;
   }
@@ -842,7 +854,7 @@ section.app .call-screen .options button.disable {
     width: 60%;
   }
   section.app .chat-container .chat .chat-messages .messages .message div span img, section.app .chat-container .chat .chat-messages .messages .message div span video {
-    width: 225px;
+    width: 175px;
   }
 }
 

@@ -87,12 +87,13 @@ async function addFriend() {
             if (childData.email == addFriendInput.value) {
                 const friend = document.createElement('div');
                 const friendID = friendsList.childElementCount - 1;
+                const friendUID = childData.uid;
                 let friendDescription = "Let's start chat!";
                 friend.classList.add('friend');
                 friend.id = friendID;
                 friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname}</h2><span>${friendDescription}</span></div>`;
                 friendsList.appendChild(friend);
-                addFriendToDatabase(childData.nickname);
+                addFriendToDatabase(childData.nickname, friendUID);
                 friend.addEventListener('click', () => selectFriend(friendID, childData.nickname));
                 addFriendInput.value = '';
                 return;
@@ -100,10 +101,11 @@ async function addFriend() {
         });
     });
 }
-function addFriendToDatabase(nickname) {
+function addFriendToDatabase(nickname, friendUID) {
     const uid = auth.currentUser.uid;
     const data = {
-        friend: nickname
+        friend: nickname,
+        uid: friendUID
     };
     rdb.ref(`users/${uid}/friends/friend_${nickname}`).set(data);
 }
@@ -120,7 +122,14 @@ async function loadFriendsFromDatabase() {
             let friendDescription = "Let's start chat!";
             friend.classList.add('friend');
             friend.id = friendID;
-            friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+            rdb.ref(`users/${childData.uid}`).once('value', function (snapshot) {
+                if (snapshot.val().url) {
+                    friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+                }
+                else {
+                    friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+                }
+            });
             friendsList.appendChild(friend);
             friend.addEventListener('click', () => selectFriend(friendID, childData.friend));
         });
@@ -700,6 +709,34 @@ async function sendMessageToDatabase(msg) {
 }
 const auth = firebase.auth();
 const rdb = firebase.database();
+const imageChangeInput = document.querySelector("#image-upload");
+imageChangeInput.addEventListener("change", () => {
+    const file = imageChangeInput.files[0];
+    const reader = new FileReader();
+    reader.addEventListener('load', () => {
+        const uid = auth.currentUser.uid;
+        if (reader.result) {
+            const data = {
+                url: reader.result,
+            };
+            rdb.ref(`users/${uid}/`).update(data);
+        }
+        else
+            return;
+    });
+    reader.readAsDataURL(file);
+});
+setTimeout(() => {
+    if (!auth.currentUser)
+        return;
+    const imageToChange = document.querySelector('#imageToChange');
+    const uid = auth.currentUser.uid;
+    rdb.ref(`users/${uid}/`).once('value', function (snapshot) {
+        if (!snapshot.exists() || !snapshot.val().url)
+            return;
+        imageToChange.src = snapshot.val().url;
+    });
+}, 1500);
 function loginCheck() {
     const log_email = document.querySelector("#log_email");
     const log_password = document.querySelector("#log_password");

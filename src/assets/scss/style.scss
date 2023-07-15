@@ -35,10 +35,16 @@ section.app {
         align-items: center;
         .top {
             margin-top: 24px;
-            img {
-                width: 48px;
-                height: 48px;
-                border-radius: 4px;
+            input {
+                display: none;
+            }
+            label {
+                img {
+                    width: 48px;
+                    height: 48px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
             }
         }
         .menu {
@@ -109,7 +115,7 @@ section.app {
         }
     }
     .chat-container {
-        width: 100%;
+        width: calc(100% - 96px);
         height: 100%;
         display: flex;
         .friends {
@@ -359,14 +365,16 @@ section.app {
                     }
                     .first-message {
                         width: calc(100% - 32px);
-                        height: 32px;
-                        background: #1daaad25;
+                        height: fit-content;
+                        background: rgba(29, 170, 173, 0.1450980392);
                         border-radius: 4px;
                         display: flex;
                         justify-content: center;
                         align-items: center;
+                        padding: 3px 9px;
                         margin: 0 auto;
                         margin-bottom: 32px;
+                        text-align: center;
                         span {
                             display: flex;
                             justify-content: center;
@@ -879,6 +887,7 @@ section.app {
             min-width: 72px;
         }
         .chat-container {
+            width: calc(100% - 72px);
             .friends {
                 min-width: 256px;
             }
@@ -917,6 +926,7 @@ section.app {
             min-width: 72px;
         }
         .chat-container {
+            width: calc(100% - 72px);
             .friends {
                 min-width: 100%;
                 &.hide {
@@ -939,7 +949,7 @@ section.app {
                             div {
                                 span {
                                     img, video {
-                                        width: 225px;
+                                        width: 175px;
                                     }
                                 }
                             }
