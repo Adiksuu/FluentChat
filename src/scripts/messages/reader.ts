@@ -14,7 +14,8 @@ imageInput.addEventListener("change", (e: any) => {
       nickname: userNickname,
       message: '',
       url: reader.result,
-      date: currentDate
+      date: currentDate,
+      uid: uid
     };
 
     // CREATE THREAD-ID

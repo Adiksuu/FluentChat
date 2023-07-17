@@ -91,14 +91,12 @@ async function addFriend() {
                 let friendDescription = "Let's start chat!";
                 friend.classList.add('friend');
                 friend.id = friendID;
-                rdb.ref(`users/${childData.uid}`).once('value', function (snapshot) {
-                    if (snapshot.val().url) {
-                        friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
-                    }
-                    else {
-                        friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
-                    }
-                });
+                if (snapshot.val() && snapshot.val().url) {
+                    friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+                }
+                else {
+                    friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+                }
                 friendsList.appendChild(friend);
                 addFriendToDatabase(childData.nickname, friendUID);
                 friend.addEventListener('click', () => selectFriend(friendID, childData.nickname));
@@ -129,14 +127,12 @@ async function loadFriendsFromDatabase() {
             let friendDescription = "Let's start chat!";
             friend.classList.add('friend');
             friend.id = friendID;
-            rdb.ref(`users/${childData.uid}`).once('value', function (snapshot) {
-                if (snapshot.val().url) {
-                    friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
-                }
-                else {
-                    friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
-                }
-            });
+            if (snapshot.val() && snapshot.val().url) {
+                friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+            }
+            else {
+                friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+            }
             friendsList.appendChild(friend);
             friend.addEventListener('click', () => selectFriend(friendID, childData.friend));
         });

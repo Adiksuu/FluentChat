@@ -9,6 +9,10 @@ async function getMessageID(threadID: any) {
         snapshot = await rdb.ref(`messages/${threadID}`).once("value");
     }
 
+    if (snapshot.val() == null) {
+        msgID = 0
+        return
+    }
     const messageIDs = Object.keys(snapshot.val());
 
     // Sprawdzenie, które message_ID są dostępne

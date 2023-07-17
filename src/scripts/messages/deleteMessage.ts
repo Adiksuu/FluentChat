@@ -22,7 +22,5 @@ async function deleteMessage(ID: string) {
       threadID = threadUser
       rdb.ref(`messages/${threadID}/${ID}`).remove()
     }
-
-    await rdb.ref(`messages/${threadID}/${ID}`).remove()
     window.location.reload()
 }

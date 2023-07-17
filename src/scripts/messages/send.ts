@@ -93,26 +93,29 @@ async function sendMessage(childData: any, childKey: any) {
     } else {
       message.classList.add('message');
     }
+    
+    getMyAvatar()
+    await getThreadAvatar()
   
     // TYPE MESSAGE CONTENT
     if (!childData.url) {
       if (created == user) {
-        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="${myAvatar}" alt="">`;
       } else {
-        message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
+        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
       }
     } else {
       if (childData.url.includes('data:image')) {
         if (created == user) {
-          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
         } else {
-          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
+          message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
         }
       } else {
         if (created == user) {
-          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video controls src="${childData.url}"></video></span></div></div><img src="./src/assets/images/logo-bg.png" alt="">`;
+          message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
         } else {
-          message.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
+          message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
         }
       }
     }
@@ -120,10 +123,15 @@ async function sendMessage(childData: any, childKey: any) {
     // APPEND MESSAGE TO CHAT
     const messages: HTMLDivElement = document.querySelector('.messages');
     await messages.appendChild(message);
+
+    const messageContent: HTMLSpanElement = message.querySelector('#message-content');
+    loadEmojisFromDatabase(childKey, messageContent);
+
     messages.scrollTop = messages.scrollHeight
 
     loadLatestMessage()
     loadDelMenus()
+    loadEmojiMenus()
   }
   
 
@@ -138,7 +146,8 @@ async function sendMessageToDatabase(msg: string) {
         message: msg,
         author: user,
         nickname: userNickname,
-        date: currentDate
+        date: currentDate,
+        uid: uid
     };
 
     // CREATE THREAD-ID

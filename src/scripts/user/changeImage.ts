@@ -4,13 +4,14 @@ imageChangeInput.addEventListener("change", () => {
     const file: any = imageChangeInput.files[0];
     const reader = new FileReader();
     
-    reader.addEventListener('load', () => {
+    reader.addEventListener('load', async () => {
         const uid: string = auth.currentUser.uid
         if (reader.result) {
             const data: any = {
                 url: reader.result,
             };
-            rdb.ref(`users/${uid}/`).update(data)
+            await rdb.ref(`users/${uid}/`).update(data)
+            loadAvatar()
         } else return
     })
 
@@ -18,6 +19,10 @@ imageChangeInput.addEventListener("change", () => {
 });
 
 setTimeout(() => {
+    loadAvatar()
+}, 1500);
+
+function loadAvatar() {
     if (!auth.currentUser) return
 
     const imageToChange: HTMLImageElement = document.querySelector('#imageToChange')
@@ -28,4 +33,4 @@ setTimeout(() => {
 
         imageToChange.src = snapshot.val().url
     })
-}, 1500);
+}
