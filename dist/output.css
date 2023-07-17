@@ -380,7 +380,7 @@ section.app .chat-container .chat .chat-messages .messages .message {
   gap: 16px;
 }
 section.app .chat-container .chat .chat-messages .messages .message img {
-  height: 48px;
+  max-height: 156px;
   width: 48px;
   border-radius: 50%;
 }
@@ -402,6 +402,7 @@ section.app .chat-container .chat .chat-messages .messages .message div span {
   border-radius: 0 16px 16px 16px;
   display: flex;
   overflow-wrap: anywhere;
+  position: relative;
 }
 section.app .chat-container .chat .chat-messages .messages .message div span img,
 section.app .chat-container .chat .chat-messages .messages .message div span video {
@@ -409,6 +410,12 @@ section.app .chat-container .chat .chat-messages .messages .message div span vid
   width: fit-content;
   object-fit: contain;
   max-height: 156px;
+}
+section.app .chat-container .chat .chat-messages .messages .message div span a {
+  position: absolute;
+  left: -4px;
+  bottom: -12px;
+  cursor: pointer;
 }
 section.app .chat-container .chat .chat-messages .messages .message #message-options {
   flex-direction: row;

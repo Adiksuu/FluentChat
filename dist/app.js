@@ -345,8 +345,68 @@ async function deleteMessage(ID) {
         threadID = threadUser;
         rdb.ref(`messages/${threadID}/${ID}`).remove();
     }
-    await rdb.ref(`messages/${threadID}/${ID}`).remove();
     window.location.reload();
+}
+function loadEmojiMenus() {
+    const buttons = document.querySelectorAll('button[id*="emoji_"]');
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => addEmojiMessage(button.id, button));
+    });
+}
+async function addEmojiMessage(ID, button) {
+    await getThreadUser();
+    let threadID;
+    const uid = auth.currentUser.uid;
+    if (!threadUser.includes("Group_")) {
+        threadID = [uid, threadUser].sort().join(",");
+    }
+    else {
+        threadID = threadUser;
+    }
+    const emojiRef = `messages/${threadID}/${ID.replace("emoji_", "message_")}/emojis/user_${uid}`;
+    const ref = await rdb.ref(emojiRef);
+    ref.once("value", async function (snapshot) {
+        const data = {
+            user: uid,
+        };
+        if (snapshot.exists()) {
+            ref.remove();
+        }
+        else {
+            ref.set(data);
+        }
+        loadEmojisFromDatabase(ID.replace('emoji_', 'message_'), button.parentElement.children[0]);
+    });
+}
+function deleteEmoji(message_ID, message) {
+    let threadID;
+    const uid = auth.currentUser.uid;
+    if (!threadUser.includes("Group_")) {
+        threadID = [uid, threadUser].sort().join(",");
+        rdb.ref(`messages/${threadID}/${message_ID}/emojis/`).once("value", function (snapshot) {
+            if (snapshot.exists())
+                return;
+            message.innerHTML = message.innerHTML.replace('<a>😀</a>', '');
+        });
+    }
+}
+function loadEmojisFromDatabase(message_ID, message) {
+    let threadID;
+    const uid = auth.currentUser.uid;
+    if (!threadUser.includes("Group_")) {
+        threadID = [uid, threadUser].sort().join(",");
+        rdb.ref(`messages/${threadID}/${message_ID}/emojis/`).once("value", function (snapshot) {
+            if (!snapshot.exists()) {
+                deleteEmoji(message_ID, message);
+                return;
+            }
+            snapshot.forEach(function (childSnapshot) {
+                const emoji = document.createElement("a");
+                emoji.innerHTML = "😀";
+                message.appendChild(emoji);
+            });
+        });
+    }
 }
 let currentDate;
 function getDate() {
@@ -470,33 +530,36 @@ async function loadMessages() {
                     message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="${myAvatar}" alt="">`;
                 }
                 else {
-                    message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
+                    message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
                 }
             }
             else {
                 if (childData.url.includes('data:image')) {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
+                        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
                     }
                 }
                 else {
                     if (created == user) {
-                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
+                        message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
+                        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
                     }
                 }
             }
             messages.appendChild(message);
             loadLatestMessage();
+            const messageContent = message.querySelector('#message-content');
+            loadEmojisFromDatabase(childKey, messageContent);
         });
     });
     messages.scrollTop = messages.scrollHeight;
     loadDelMenus();
+    loadEmojiMenus();
 }
 function clearChatMessages() {
     const messages = document.querySelector('.messages');
@@ -603,38 +666,41 @@ async function sendMessage(childData, childKey) {
         message.classList.add('message');
     }
     getMyAvatar();
-    await getThreadAvatar(childData);
+    await getThreadAvatar();
     if (!childData.url) {
         if (created == user) {
             message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="${myAvatar}" alt="">`;
         }
         else {
-            message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span id="message-content">${childData.message}</span></div>`;
+            message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
         }
     }
     else {
         if (childData.url.includes('data:image')) {
             if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
             }
             else {
-                message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><img src="${childData.url}"></img></span></div>`;
+                message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
             }
         }
         else {
             if (created == user) {
-                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
+                message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
             }
             else {
-                message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><span><video controls src="${childData.url}"></video></span></div>`;
+                message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
             }
         }
     }
     const messages = document.querySelector('.messages');
     await messages.appendChild(message);
+    const messageContent = message.querySelector('#message-content');
+    loadEmojisFromDatabase(childKey, messageContent);
     messages.scrollTop = messages.scrollHeight;
     loadLatestMessage();
     loadDelMenus();
+    loadEmojiMenus();
 }
 async function sendMessageToDatabase(msg) {
     const uid = auth.currentUser.uid;
