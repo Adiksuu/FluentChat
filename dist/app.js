@@ -58,15 +58,27 @@ function loadEmojis(data) {
         }
     });
 }
-function addEmoji(emoji) {
-    const input = document.querySelector('#sendMessageInput');
-    input.value += emoji;
-}
 const showEmoji = document.querySelector('#showEmoji');
+const emojisPopup = document.querySelector('.emojis-popup');
 showEmoji.addEventListener('click', () => {
-    const emojisPopup = document.querySelector('.emojis-popup');
     emojisPopup.classList.toggle('show');
+    if (inReactionMode) {
+        inReactionMode = false;
+    }
+    else {
+        inReactionMode = true;
+    }
 });
+function addEmoji(emoji) {
+    if (!inReactionMode) {
+        const input = document.querySelector('#sendMessageInput');
+        input.value += emoji;
+    }
+    else {
+        addEmojiMessage(currentButtonID, currentButton, emoji);
+        emojisPopup.classList.toggle('show');
+    }
+}
 const addFriendButton = document.querySelector('#addFriend');
 addFriendButton.addEventListener('click', () => {
     const addFriendDiv = document.querySelector('#addFriendDiv');
@@ -343,13 +355,32 @@ async function deleteMessage(ID) {
     }
     window.location.reload();
 }
+let inReactionMode = false;
+let currentButtonID;
+let currentButton;
 function loadEmojiMenus() {
     const buttons = document.querySelectorAll('button[id*="emoji_"]');
     buttons.forEach((button) => {
-        button.addEventListener("click", () => addEmojiMessage(button.id, button));
+        button.addEventListener("click", () => {
+            currentButtonID = button.id;
+            currentButton = button;
+            if (currentButton.parentElement.children[0].innerHTML.includes('<a>')) {
+                console.log(currentButtonID.replace('emoji_', 'message_'), currentButton.parentElement.children[0]);
+                deleteEmoji(currentButtonID.replace('emoji_', 'message_'), currentButton.parentElement.children[0]);
+                return;
+            }
+            if (inReactionMode) {
+                inReactionMode = false;
+                emojisPopup.classList.remove('show');
+            }
+            else {
+                inReactionMode = true;
+                emojisPopup.classList.add('show');
+            }
+        });
     });
 }
-async function addEmojiMessage(ID, button) {
+async function addEmojiMessage(ID, button, emoji) {
     await getThreadUser();
     let threadID;
     const uid = auth.currentUser.uid;
@@ -364,6 +395,7 @@ async function addEmojiMessage(ID, button) {
     ref.once("value", async function (snapshot) {
         const data = {
             user: uid,
+            emoji: emoji
         };
         if (snapshot.exists()) {
             ref.remove();
@@ -380,9 +412,15 @@ function deleteEmoji(message_ID, message) {
     if (!threadUser.includes("Group_")) {
         threadID = [uid, threadUser].sort().join(",");
         rdb.ref(`messages/${threadID}/${message_ID}/emojis/`).once("value", function (snapshot) {
-            if (snapshot.exists())
+            if (!snapshot.exists())
                 return;
-            message.innerHTML = message.innerHTML.replace('<a>😀</a>', '');
+            snapshot.ref.remove().then(() => {
+                snapshot.forEach((childSnapshot) => {
+                    message.innerHTML = message.innerHTML.replace(`<a>${childSnapshot.val().emoji}</a>`, '');
+                });
+            }).catch((error) => {
+                console.error(error);
+            });
         });
     }
 }
@@ -398,7 +436,7 @@ function loadEmojisFromDatabase(message_ID, message) {
             }
             snapshot.forEach(function (childSnapshot) {
                 const emoji = document.createElement("a");
-                emoji.innerHTML = "😀";
+                emoji.innerHTML = childSnapshot.val().emoji;
                 message.appendChild(emoji);
             });
         });
@@ -501,7 +539,7 @@ async function loadMessages() {
     messages.appendChild(firstMessage);
     getMyAvatar();
     await getThreadUser();
-    getThreadAvatar();
+    await getThreadAvatar();
     let threadID;
     if (!threadUser.includes('Group_')) {
         threadID = [uid, threadUser];
@@ -791,10 +829,12 @@ async function getMyAvatar() {
 async function getThreadAvatar() {
     if (!threadUser.includes('Group_')) {
         const snapshot = await rdb.ref(`users/${threadUser}/`).once('value');
-        if (!snapshot.exists() || !snapshot.val().url) {
+        if (snapshot.val().url == undefined) {
             threadAvatar = './src/assets/images/logo-bg.png';
         }
-        threadAvatar = snapshot.val().url;
+        else {
+            threadAvatar = snapshot.val().url;
+        }
     }
     else {
         threadAvatar = './src/assets/images/logo-bg.png';
