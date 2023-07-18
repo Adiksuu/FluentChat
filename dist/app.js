@@ -131,28 +131,32 @@ async function loadFriendsFromDatabase() {
         return;
     const uid = auth.currentUser.uid;
     const friendsList = document.querySelector('.friends-list');
-    await rdb.ref(`users/${uid}/friends`).once("value", function (snapshot) {
-        snapshot.forEach(function (childSnapshot) {
-            const childData = childSnapshot.val();
+    const snapshot = await rdb.ref(`users/${uid}/friends`).once("value");
+    const friendsData = snapshot.val();
+    for (const friendDataKey in friendsData) {
+        if (friendsData.hasOwnProperty(friendDataKey)) {
+            const childData = friendsData[friendDataKey];
             const friend = document.createElement('div');
             const friendID = friendsList.childElementCount - 1;
             let friendDescription = "Let's start chat!";
             friend.classList.add('friend');
             friend.id = friendID;
-            if (snapshot.val() && snapshot.val().url) {
-                friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
+            const userDataSnapshot = await rdb.ref(`users/${childData.uid}`).once('value');
+            const userData = userDataSnapshot.val();
+            if (userData && userData.url) {
+                friend.innerHTML = `<img src="${userData.url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
             }
             else {
                 friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
             }
             friendsList.appendChild(friend);
             friend.addEventListener('click', () => selectFriend(friendID, childData.friend));
-        });
-    });
+        }
+    }
 }
 document.addEventListener("DOMContentLoaded", () => {
-    window.setTimeout(() => {
-        loadFriendsFromDatabase();
+    window.setTimeout(async () => {
+        await loadFriendsFromDatabase();
         loadGroupsFromDatabase();
     }, 1000);
 });
