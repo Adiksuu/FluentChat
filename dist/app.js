@@ -365,7 +365,6 @@ function loadEmojiMenus() {
             currentButtonID = button.id;
             currentButton = button;
             if (currentButton.parentElement.children[0].innerHTML.includes('<a>')) {
-                console.log(currentButtonID.replace('emoji_', 'message_'), currentButton.parentElement.children[0]);
                 deleteEmoji(currentButtonID.replace('emoji_', 'message_'), currentButton.parentElement.children[0]);
                 return;
             }
@@ -390,7 +389,7 @@ async function addEmojiMessage(ID, button, emoji) {
     else {
         threadID = threadUser;
     }
-    const emojiRef = `messages/${threadID}/${ID.replace("emoji_", "message_")}/emojis/user_${uid}`;
+    const emojiRef = `messages/${threadID}/${ID.replace("emoji_", "message_")}/emojis/added`;
     const ref = await rdb.ref(emojiRef);
     ref.once("value", async function (snapshot) {
         const data = {
@@ -411,16 +410,14 @@ function deleteEmoji(message_ID, message) {
     const uid = auth.currentUser.uid;
     if (!threadUser.includes("Group_")) {
         threadID = [uid, threadUser].sort().join(",");
-        rdb.ref(`messages/${threadID}/${message_ID}/emojis/`).once("value", function (snapshot) {
-            if (!snapshot.exists())
-                return;
-            snapshot.ref.remove().then(() => {
-                snapshot.forEach((childSnapshot) => {
-                    message.innerHTML = message.innerHTML.replace(`<a>${childSnapshot.val().emoji}</a>`, '');
-                });
-            }).catch((error) => {
-                console.error(error);
-            });
+        const emojiRef = rdb.ref(`messages/${threadID}/${message_ID}/emojis/added`);
+        const aTag = message.querySelector('a');
+        if (aTag) {
+            aTag.remove();
+        }
+        emojiRef.once("value", function (snapshot) {
+            if (snapshot.exists())
+                emojiRef.remove();
         });
     }
 }
@@ -682,6 +679,22 @@ async function addListenerToMessage() {
         const childKey = data.key;
         if (created !== user) {
             sendMessage(data.val(), childKey);
+        }
+    });
+    chat.on('child_changed', (data) => {
+        const message_ID = data.key;
+        const msgButton = document.querySelector(`button#${message_ID}`);
+        if (msgButton != undefined) {
+            const msgSpan = msgButton.parentElement.children[1];
+            const emojisRef = `messages/${threadID}/${message_ID}/emojis/added`;
+            rdb.ref(emojisRef).once('value', function (snapshot) {
+                if (snapshot.exists()) {
+                    loadEmojisFromDatabase(message_ID, msgSpan);
+                }
+                else {
+                    deleteEmoji(message_ID, msgSpan);
+                }
+            });
         }
     });
 }
