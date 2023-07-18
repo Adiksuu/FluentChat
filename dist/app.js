@@ -150,9 +150,12 @@ async function loadFriendsFromDatabase() {
         });
     });
 }
-window.setTimeout(() => {
-    loadFriendsFromDatabase();
-}, 1000);
+document.addEventListener("DOMContentLoaded", () => {
+    window.setTimeout(() => {
+        loadFriendsFromDatabase();
+        loadGroupsFromDatabase();
+    }, 1000);
+});
 async function selectFriend(id, friendName) {
     const friendsList = document.querySelector('.friends-list');
     await resetActives();
@@ -309,9 +312,6 @@ async function loadGroupsFromDatabase() {
         });
     });
 }
-window.setTimeout(() => {
-    loadGroupsFromDatabase();
-}, 1000);
 const friends = document.querySelector('.friends');
 const chat = document.querySelector('.chat');
 const toChatsButton = document.querySelector('.toChats');
