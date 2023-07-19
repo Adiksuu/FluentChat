@@ -165,25 +165,27 @@ async function refreshFriends() {
 }
 let inProfileMode = false;
 async function showProfile(uid) {
-    const user_profile = document.querySelector('.user-profile');
+    const user_profile = document.querySelector(".user-profile");
     if (inProfileMode) {
         inProfileMode = false;
-        user_profile.classList.remove('show');
+        user_profile.classList.remove("show");
     }
     else {
         inProfileMode = true;
-        const userDataBasic = await rdb.ref(`users/${uid}`).once('value');
-        const userDataAdvanced = await rdb.ref(`users/${uid}/info`).once('value');
-        const profile_avatar = document.querySelector('#profile-avatar');
-        const profile_email = document.querySelector('#profile-email');
-        const profile_nickname = document.querySelector('#profile-nickname');
-        const profile_bio = document.querySelector('#profile-bio');
-        const profile_created = document.querySelector('#profile-created');
+        const userDataBasic = await rdb.ref(`users/${uid}`).once("value");
+        const userDataAdvanced = await rdb
+            .ref(`users/${uid}/info`)
+            .once("value");
+        const profile_avatar = document.querySelector("#profile-avatar");
+        const profile_email = document.querySelector("#profile-email");
+        const profile_nickname = document.querySelector("#profile-nickname");
+        const profile_bio = document.querySelector("#profile-bio");
+        const profile_created = document.querySelector("#profile-created");
         if (userDataBasic.val().url) {
             profile_avatar.src = userDataBasic.val().url;
         }
         else {
-            profile_avatar.src = './src/assets/images/logo-bg.png';
+            profile_avatar.src = "./src/assets/images/logo-bg.png";
         }
         profile_email.textContent = userDataBasic.val().email;
         profile_nickname.textContent = `@${userDataBasic.val().nickname}`;
@@ -199,31 +201,64 @@ async function showProfile(uid) {
         else {
             profile_created.textContent = "Long ago";
         }
-        user_profile.classList.add('show');
+        user_profile.classList.add("show");
     }
 }
-document.body.addEventListener('click', () => {
-    const user_profile = document.querySelector('.user-profile');
-    if (inProfileMode && user_profile.classList.contains('show')) {
-        showProfile('');
+document.body.addEventListener("click", (e) => {
+    const user_profile = document.querySelector(".user-profile");
+    if (e.target.classList.contains("messages") ||
+        e.target.classList.contains("message")) {
+        if (inProfileMode && user_profile.classList.contains("show")) {
+            showProfile("");
+        }
     }
 });
+const change_theme = document.querySelector("#change-theme");
+change_theme.addEventListener("click", () => {
+    showProfile("");
+    const theme_selector = document.querySelector(".theme-selector");
+    theme_selector.classList.toggle("show");
+    const exitSelector = document.querySelector("#exitThemeSelector");
+    exitSelector.addEventListener("click", () => {
+        theme_selector.classList.remove("show");
+    });
+});
+const themes_list = document.querySelector(".list");
+for (let i = 0; i < themes_list.childElementCount; i++) {
+    themes_list.children[i].addEventListener("click", async () => {
+        await getThreadUser();
+        let threadID;
+        const uid = auth.currentUser.uid;
+        if (!threadUser.includes("Group_")) {
+            threadID = [uid, threadUser].sort().join(",");
+        }
+        else {
+            threadID = [threadUser];
+        }
+        const data = {
+            url: themes_list.children[i].children[0].src
+        };
+        await rdb.ref(`messages/${threadID}`).update(data);
+        loadWallpaper();
+    });
+}
 async function selectFriend(id, friendName) {
-    const friendsList = document.querySelector('.friends-list');
+    const friendsList = document.querySelector(".friends-list");
     await resetActives();
-    friendsList.children[id + 1].classList.add('active');
+    friendsList.children[id + 1].classList.add("active");
     navUserAvatar.src = friendsList.children[id + 1].children[0].src;
     await changeChatSelect(friendName);
+    loadWallpaper();
     await addListenerToMessage();
     loadGroupName();
 }
 function resetActives() {
-    const friendsList = document.querySelector('.friends-list');
+    const friendsList = document.querySelector(".friends-list");
     for (let i = 0; i < friendsList.childElementCount - 1; i++) {
-        friendsList.children[i + 1].classList.remove('active');
+        friendsList.children[i + 1].classList.remove("active");
     }
 }
-const navUserAvatar = document.querySelector('#navUserAvatar');
+const navUserAvatar = document.querySelector("#navUserAvatar");
 async function changeChatSelect(friendName) {
     threadUserElement.textContent = friendName;
     await loadMessages();
@@ -276,6 +311,32 @@ function toggleAddUsers() {
     const changeGroupDiv = document.querySelector('#changeGroupDiv');
     addUserDiv.classList.toggle('show');
     changeGroupDiv.classList.remove('show');
+}
+async function loadWallpaper() {
+    await getThreadUser();
+    let threadID;
+    const uid = auth.currentUser.uid;
+    if (!threadUser.includes("Group_")) {
+        threadID = [uid, threadUser].sort().join(',');
+    }
+    else {
+        threadID = [threadUser];
+    }
+    const data = await rdb.ref(`messages/${threadID}`).once('value');
+    const messages = document.querySelector('.messages');
+    console.log(data.val().url);
+    if (data.val().url && data.val().url.includes('/src/assets/images/logo.png')) {
+        messages.style.background = `#f3f3f3`;
+        return;
+    }
+    if (data.val().url) {
+        messages.style.background = `url(${data.val().url}) no-repeat`;
+        messages.style.backgroundPosition = 'center';
+        messages.style.backgroundSize = 'cover';
+    }
+    else {
+        messages.style.background = `#f3f3f3`;
+    }
 }
 function addUserToGroup(groupID, userUID) {
     const data = {
@@ -600,6 +661,8 @@ async function loadMessages() {
         snapshot.forEach(function (childSnapshot) {
             const childData = childSnapshot.val();
             const childKey = childSnapshot.key;
+            if (childKey == 'url')
+                return;
             const message = document.createElement('div');
             const created = childData.author;
             if (created == user) {
@@ -792,6 +855,8 @@ async function sendMessage(childData, childKey) {
     if (threadUser == '') {
         return;
     }
+    if (childKey == 'url')
+        return;
     const message = document.createElement('div');
     const created = childData.author;
     const user = auth.currentUser.email;

@@ -349,6 +349,8 @@ section.app .chat-container .chat .chat-messages .messages {
   flex-direction: column;
   gap: 8px;
   background: #f3f3f3;
+  background-position: center;
+  background-size: cover;
   padding: 16px;
   overflow-y: scroll;
 }
@@ -358,7 +360,7 @@ section.app .chat-container .chat .chat-messages .messages::-webkit-scrollbar {
 section.app .chat-container .chat .chat-messages .messages .first-message {
   width: calc(100% - 32px);
   height: fit-content;
-  background: rgba(29, 170, 173, 0.1450980392);
+  background: #cfe5e5;
   border-radius: 4px;
   display: flex;
   justify-content: center;
@@ -441,7 +443,7 @@ section.app .chat-container .chat .chat-messages .messages .message #message-opt
 section.app .chat-container .chat .chat-messages .messages .message #message-options button {
   height: 32px;
   width: 32px;
-  background: rgba(29, 170, 173, 0.1450980392);
+  background: #cfe5e5;
   color: #1dabad;
   font-size: 18px;
   border-radius: 50%;
@@ -663,6 +665,105 @@ section.app .user-profile .about div span {
   color: #0f0f0f;
   font-size: 14px;
   font-weight: 600;
+}
+section.app .user-profile .theme {
+  margin-bottom: 16px;
+}
+section.app .user-profile .theme button {
+  height: 42px;
+  width: calc(100% - 32px);
+  border-radius: 4px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  column-width: 800;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: 14px;
+}
+section.app .user-profile .theme button:hover {
+  filter: brightness(0.9);
+}
+section.app .theme-selector {
+  width: 356px;
+  background: #fff;
+  height: 456px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  padding: 0 16px;
+  border-radius: 8px;
+  box-shadow: 0 0 8px 2px rgba(69, 69, 69, 0.0823529412);
+  overflow-y: auto;
+  opacity: 0;
+  pointer-events: none;
+}
+section.app .theme-selector.show {
+  opacity: 1;
+  pointer-events: all;
+}
+section.app .theme-selector::-webkit-scrollbar {
+  display: none;
+}
+section.app .theme-selector .top {
+  display: flex;
+  position: fixed;
+  width: 324px;
+  background: #fff;
+  height: 48px;
+  align-items: center;
+}
+section.app .theme-selector .top h1 {
+  text-transform: uppercase;
+  color: #0f0f0f;
+  text-align: center;
+  width: 100%;
+}
+section.app .theme-selector .top button {
+  height: 32px;
+  width: 32px;
+  border-radius: 4px;
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  cursor: pointer;
+  right: 16px;
+  position: absolute;
+}
+section.app .theme-selector p {
+  text-transform: uppercase;
+  color: #1dabad;
+  font-weight: 600;
+  font-size: 14px;
+  margin-top: 48px;
+}
+section.app .theme-selector .list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px 0;
+}
+section.app .theme-selector .list div {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+section.app .theme-selector .list div:hover {
+  background: #f3f3f3;
+}
+section.app .theme-selector .list div img {
+  height: 42px;
+  width: 42px;
+  border-radius: 50%;
+}
+section.app .theme-selector .list div span {
+  font-weight: 600;
+  color: #0f0f0f;
+  font-size: 18px;
 }
 section.app .user-manage {
   width: 100%;
@@ -918,6 +1019,9 @@ section.app .call-screen .options button.disable {
   }
 }
 @media screen and (max-width: 600px) {
+  section.app .user-profile, section.app .theme-selector {
+    width: calc(100% - 48px);
+  }
   section.app .user-manage .container {
     width: calc(100% - 32px);
   }
