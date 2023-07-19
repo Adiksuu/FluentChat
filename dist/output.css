@@ -598,6 +598,72 @@ section.app .chat-container .chat .chat-messages .send-messages .options label:h
   color: #1dabad;
   background: rgba(29, 170, 173, 0.1450980392);
 }
+section.app .user-profile {
+  position: fixed;
+  height: fit-content;
+  width: 325px;
+  background: #fff;
+  border-radius: 8px;
+  margin: auto;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  box-shadow: 0 0 8px 2px rgba(69, 69, 69, 0.0823529412);
+  opacity: 0;
+  pointer-events: none;
+}
+section.app .user-profile.show {
+  opacity: 1;
+  pointer-events: all;
+}
+section.app .user-profile .top {
+  transform: translateY(calc(-50% - 16px));
+  background: #fff;
+  border-radius: 50%;
+  width: 94px;
+  height: 94px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: auto;
+}
+section.app .user-profile .top img {
+  height: 86px;
+  width: 86px;
+  border-radius: 50%;
+}
+section.app .user-profile .info {
+  transform: translateY(-75%);
+}
+section.app .user-profile .info h1 {
+  font-weight: 700;
+  color: #0f0f0f;
+  font-size: 15px;
+}
+section.app .user-profile .info p {
+  font-weight: 600;
+  color: #1dabad;
+  font-size: 14px;
+}
+section.app .user-profile .about {
+  text-align: left;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+section.app .user-profile .about div p {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1dabad;
+}
+section.app .user-profile .about div span {
+  color: #0f0f0f;
+  font-size: 14px;
+  font-weight: 600;
+}
 section.app .user-manage {
   width: 100%;
   height: 100%;

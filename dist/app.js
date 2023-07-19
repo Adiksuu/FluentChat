@@ -163,6 +163,51 @@ async function refreshFriends() {
         reloadFriendsButton.style.display = 'none';
     }
 }
+let inProfileMode = false;
+async function showProfile(uid) {
+    const user_profile = document.querySelector('.user-profile');
+    if (inProfileMode) {
+        inProfileMode = false;
+        user_profile.classList.remove('show');
+    }
+    else {
+        inProfileMode = true;
+        const userDataBasic = await rdb.ref(`users/${uid}`).once('value');
+        const userDataAdvanced = await rdb.ref(`users/${uid}/info`).once('value');
+        const profile_avatar = document.querySelector('#profile-avatar');
+        const profile_email = document.querySelector('#profile-email');
+        const profile_nickname = document.querySelector('#profile-nickname');
+        const profile_bio = document.querySelector('#profile-bio');
+        const profile_created = document.querySelector('#profile-created');
+        if (userDataBasic.val().url) {
+            profile_avatar.src = userDataBasic.val().url;
+        }
+        else {
+            profile_avatar.src = './src/assets/images/logo-bg.png';
+        }
+        profile_email.textContent = userDataBasic.val().email;
+        profile_nickname.textContent = `@${userDataBasic.val().nickname}`;
+        if (userDataAdvanced.exists() && userDataAdvanced.val().bio) {
+            profile_bio.textContent = userDataAdvanced.val().bio;
+        }
+        else {
+            profile_bio.textContent = "Welcome on my bio";
+        }
+        if (userDataAdvanced.exists() && userDataAdvanced.val().created) {
+            profile_created.textContent = userDataAdvanced.val().created;
+        }
+        else {
+            profile_created.textContent = "Long ago";
+        }
+        user_profile.classList.add('show');
+    }
+}
+document.body.addEventListener('click', () => {
+    const user_profile = document.querySelector('.user-profile');
+    if (inProfileMode && user_profile.classList.contains('show')) {
+        showProfile('');
+    }
+});
 async function selectFriend(id, friendName) {
     const friendsList = document.querySelector('.friends-list');
     await resetActives();
@@ -568,7 +613,7 @@ async function loadMessages() {
                     message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="${myAvatar}" alt="">`;
                 }
                 else {
-                    message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
+                    message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
                 }
             }
             else {
@@ -577,7 +622,7 @@ async function loadMessages() {
                         message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
+                        message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
                     }
                 }
                 else {
@@ -585,15 +630,24 @@ async function loadMessages() {
                         message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
                     }
                     else {
-                        message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
+                        message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
                     }
                 }
             }
             messages.appendChild(message);
             loadLatestMessage();
             const messageContent = message.querySelector('#message-content');
-            checkMessageFunctions(messageContent);
             loadEmojisFromDatabase(childKey, messageContent);
+            checkMessageFunctions(messageContent);
+            const profileImage = message.querySelector('#profile-image');
+            if (profileImage) {
+                if (!threadUser.includes('Group_')) {
+                    profileImage.addEventListener('click', () => showProfile(threadUser));
+                }
+                else {
+                    profileImage.addEventListener('click', () => showProfile(childData.uid));
+                }
+            }
         });
     });
     messages.scrollTop = messages.scrollHeight;
@@ -754,7 +808,7 @@ async function sendMessage(childData, childKey) {
             message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content">${childData.message}</span></div></div><img src="${myAvatar}" alt="">`;
         }
         else {
-            message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
+            message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content">${childData.message}</span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
         }
     }
     else {
@@ -763,7 +817,7 @@ async function sendMessage(childData, childKey) {
                 message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><img src="${childData.url}"></img></span></div></div><img src="${myAvatar}" alt="">`;
             }
             else {
-                message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
+                message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><img src="${childData.url}"></img></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
             }
         }
         else {
@@ -771,7 +825,7 @@ async function sendMessage(childData, childKey) {
                 message.innerHTML = `<div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><button id="${childKey}"><i class="fas fa-trash"></i></button><span id="message-content"><video controls src="${childData.url}"></video></span></div></div><img src="${myAvatar}" alt="">`;
             }
             else {
-                message.innerHTML = `<img src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
+                message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>${childData.nickname} ${childData.date}</h2><div id="message-options"><span id="message-content"><video controls src="${childData.url}"></video></span><button id="${childKey.replace('message_', 'emoji_')}"><i class="fas fa-smile"></i></button></div></div>`;
             }
         }
     }
@@ -780,6 +834,15 @@ async function sendMessage(childData, childKey) {
     const messageContent = message.querySelector('#message-content');
     checkMessageFunctions(messageContent);
     loadEmojisFromDatabase(childKey, messageContent);
+    const profileImage = message.querySelector('#profile-image');
+    if (profileImage) {
+        if (!threadUser.includes('Group_')) {
+            profileImage.addEventListener('click', () => showProfile(threadUser));
+        }
+        else {
+            profileImage.addEventListener('click', () => showProfile(childData.uid));
+        }
+    }
     messages.scrollTop = messages.scrollHeight;
     loadLatestMessage();
     loadDelMenus();
@@ -1036,7 +1099,17 @@ function register(email, password, nickname) {
             nickname: nickname,
             uid: uid
         };
+        const date = new Date();
+        let day = date.getDate();
+        let month = date.getMonth() + 1;
+        let year = date.getFullYear();
+        let currentDate = `${day}.${month}.${year}`;
+        const advanced_data = {
+            created: currentDate,
+            bio: "It's my bio!"
+        };
         await database_ref.child(`users/${uid}`).set(data);
+        await database_ref.child(`users/${uid}/info`).set(advanced_data);
         window.location.reload();
     })
         .catch(function (error) {
