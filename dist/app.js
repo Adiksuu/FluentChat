@@ -93,26 +93,17 @@ async function addFriend() {
         addFriendInput.value = '';
         return;
     }
-    await rdb.ref(`users/`).once("value", function (snapshot) {
-        snapshot.forEach(function (childSnapshot) {
+    await rdb.ref(`users/`).once("value", async function (snapshot) {
+        snapshot.forEach(async function (childSnapshot) {
             const childData = childSnapshot.val();
             if (childData.email == addFriendInput.value) {
-                const friend = document.createElement('div');
-                const friendID = friendsList.childElementCount - 1;
                 const friendUID = childData.uid;
-                let friendDescription = "Let's start chat!";
-                friend.classList.add('friend');
-                friend.id = friendID;
-                if (snapshot.val() && snapshot.val().url) {
-                    friend.innerHTML = `<img src="${snapshot.val().url}" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
-                }
-                else {
-                    friend.innerHTML = `<img src="./src/assets/images/logo-bg.png" alt=""><div><h2>${childData.friend}</h2><span>${friendDescription}</span></div>`;
-                }
-                friendsList.appendChild(friend);
-                addFriendToDatabase(childData.nickname, friendUID);
-                friend.addEventListener('click', () => selectFriend(friendID, childData.nickname));
+                await addFriendToDatabase(childData.nickname, friendUID);
                 addFriendInput.value = '';
+                await friendsList.querySelectorAll('div.friend').forEach(element => {
+                    element.remove();
+                });
+                refreshFriends();
                 return;
             }
         });
@@ -154,12 +145,24 @@ async function loadFriendsFromDatabase() {
         }
     }
 }
+const reloadFriendsButton = document.querySelector('#reloadFriends');
 document.addEventListener("DOMContentLoaded", () => {
-    window.setTimeout(async () => {
-        await loadFriendsFromDatabase();
-        loadGroupsFromDatabase();
+    window.setTimeout(() => {
+        refreshFriends();
     }, 1000);
 });
+reloadFriendsButton.addEventListener('click', () => refreshFriends());
+async function refreshFriends() {
+    const friendsList = document.querySelector('.friends-list');
+    await loadFriendsFromDatabase();
+    await loadGroupsFromDatabase();
+    if (friendsList.childElementCount == 1) {
+        reloadFriendsButton.style.display = 'block';
+    }
+    else {
+        reloadFriendsButton.style.display = 'none';
+    }
+}
 async function selectFriend(id, friendName) {
     const friendsList = document.querySelector('.friends-list');
     await resetActives();
@@ -589,6 +592,7 @@ async function loadMessages() {
             messages.appendChild(message);
             loadLatestMessage();
             const messageContent = message.querySelector('#message-content');
+            checkMessageFunctions(messageContent);
             loadEmojisFromDatabase(childKey, messageContent);
         });
     });
@@ -599,6 +603,29 @@ async function loadMessages() {
 function clearChatMessages() {
     const messages = document.querySelector('.messages');
     messages.innerHTML = ``;
+}
+async function checkMessageFunctions(message) {
+    let message_content = message.innerHTML;
+    if (message_content.includes('<img>') || message_content.includes('<video>'))
+        return;
+    const uid = auth.currentUser.uid;
+    const user_data = await rdb.ref(`users/${uid}`).once('value');
+    if (message_content.includes(`@${user_data.val().nickname}`)) {
+        message_content = message_content.replace(`@${user_data.val().nickname}`, `<p id="mention">@${user_data.val().nickname}</p>`);
+    }
+    if (message_content.includes('https://')) {
+        const urlRegex = /https?:\/\/\S+/g;
+        const urls = message_content.match(urlRegex);
+        if (urls) {
+            urls.forEach((url) => {
+                message_content = message_content.replace(url, `<p id="link" onclick="openLink('${url}')">${url}</p>`);
+            });
+        }
+    }
+    message.innerHTML = message_content;
+}
+function openLink(link) {
+    window.open(link, "_blank");
 }
 const imageInput = document.querySelector("#file-upload");
 imageInput.addEventListener("change", (e) => {
@@ -646,6 +673,10 @@ async function sendMessageAsButton() {
     if (threadUser == '') {
         return;
     }
+    if (input.value == '')
+        return;
+    if (input.value.length == (input.value.split(' ').length - 1))
+        return;
     await sendMessageToDatabase(input.value);
     input.value = '';
 }
@@ -747,6 +778,7 @@ async function sendMessage(childData, childKey) {
     const messages = document.querySelector('.messages');
     await messages.appendChild(message);
     const messageContent = message.querySelector('#message-content');
+    checkMessageFunctions(messageContent);
     loadEmojisFromDatabase(childKey, messageContent);
     messages.scrollTop = messages.scrollHeight;
     loadLatestMessage();
@@ -915,6 +947,7 @@ function showAccountSettings() {
 }
 accountSettings.addEventListener('click', () => logout());
 async function logout() {
+    isWindowActive = false;
     await auth.signOut();
     window.location.reload();
 }

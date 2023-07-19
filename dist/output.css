@@ -269,6 +269,7 @@ section.app .chat-container .chat .navbar div.info h1 {
   font-weight: 800;
   color: #0f0f0f;
   font-size: 16px;
+  width: max-content;
 }
 section.app .chat-container .chat .navbar div.info span {
   display: flex;
@@ -403,6 +404,21 @@ section.app .chat-container .chat .chat-messages .messages .message div span {
   display: flex;
   overflow-wrap: anywhere;
   position: relative;
+  gap: 4px;
+}
+section.app .chat-container .chat .chat-messages .messages .message div span p {
+  padding: 0px 3px;
+}
+section.app .chat-container .chat .chat-messages .messages .message div span p#mention {
+  background: rgba(29, 170, 173, 0.1450980392);
+  color: #1dabad;
+  border-radius: 4px;
+}
+section.app .chat-container .chat .chat-messages .messages .message div span p#link {
+  background: rgba(173, 29, 29, 0.1450980392);
+  color: #ad1d1d;
+  border-radius: 4px;
+  cursor: pointer;
 }
 section.app .chat-container .chat .chat-messages .messages .message div span img,
 section.app .chat-container .chat .chat-messages .messages .message div span video {
