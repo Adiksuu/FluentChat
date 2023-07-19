@@ -324,7 +324,6 @@ async function loadWallpaper() {
     }
     const data = await rdb.ref(`messages/${threadID}`).once('value');
     const messages = document.querySelector('.messages');
-    console.log(data.val().url);
     if (data.val().url && data.val().url.includes('/src/assets/images/logo.png')) {
         messages.style.background = `#f3f3f3`;
         return;
