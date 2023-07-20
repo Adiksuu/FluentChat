@@ -4,7 +4,7 @@
 # 👻 HOW IT'S WORKS?
 > Let's register on the page and add your friend by entering his email adress
 
-> ![image](https://github.com/Adiksuu/FluentChat/assets/75419729/47412f43-9370-411e-9226-cf4ae9cead58)
+> ![image](https://github.com/Adiksuu/FluentChat/assets/75419729/033481e3-b70f-4880-ac24-0d32cc7428ad)
 
 > Select friend from friends-list and start typing with him
 
