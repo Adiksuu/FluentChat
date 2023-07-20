@@ -16,4 +16,5 @@
 
 # 💎 HOW IT'S LOOKS?
 
-> ![image](https://github.com/Adiksuu/FluentChat/assets/75419729/8c62eb9e-0e28-4e5d-bd7e-e02dd2240dd3)
+> ![image](https://github.com/Adiksuu/FluentChat/assets/75419729/c2ad3694-dce8-488d-806c-130044a14cac)
+
