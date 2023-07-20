@@ -403,20 +403,19 @@ section.app .chat-container .chat .chat-messages .messages .message div span {
   color: #0f0f0f;
   font-weight: 600;
   border-radius: 0 16px 16px 16px;
-  display: flex;
   overflow-wrap: anywhere;
   position: relative;
   gap: 4px;
 }
-section.app .chat-container .chat .chat-messages .messages .message div span p {
+section.app .chat-container .chat .chat-messages .messages .message div span span {
   padding: 0px 3px;
 }
-section.app .chat-container .chat .chat-messages .messages .message div span p#mention {
+section.app .chat-container .chat .chat-messages .messages .message div span span#mention {
   background: rgba(29, 170, 173, 0.1450980392);
   color: #1dabad;
   border-radius: 4px;
 }
-section.app .chat-container .chat .chat-messages .messages .message div span p#link {
+section.app .chat-container .chat .chat-messages .messages .message div span span#link {
   background: rgba(173, 29, 29, 0.1450980392);
   color: #ad1d1d;
   border-radius: 4px;

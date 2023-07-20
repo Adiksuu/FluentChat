@@ -86,6 +86,17 @@ addFriendButton.addEventListener('click', () => {
 });
 const addFriendSubmit = document.querySelector('#addFriendSubmit');
 addFriendSubmit.addEventListener('click', () => addFriend());
+function addSupportFriend(supportUID) {
+    const friendsList = document.querySelector('.friends-list');
+    rdb.ref(`users/${supportUID}`).once("value", async function (snapshot) {
+        await addFriendToDatabase(snapshot.val().nickname, supportUID);
+        await friendsList.querySelectorAll('div.friend').forEach(element => {
+            element.remove();
+        });
+        refreshFriends();
+        return;
+    });
+}
 async function addFriend() {
     const addFriendInput = document.querySelector('#addFriendInput');
     const friendsList = document.querySelector('.friends-list');
@@ -93,20 +104,19 @@ async function addFriend() {
         addFriendInput.value = '';
         return;
     }
-    await rdb.ref(`users/`).once("value", async function (snapshot) {
-        snapshot.forEach(async function (childSnapshot) {
-            const childData = childSnapshot.val();
-            if (childData.email == addFriendInput.value) {
-                const friendUID = childData.uid;
-                await addFriendToDatabase(childData.nickname, friendUID);
-                addFriendInput.value = '';
-                await friendsList.querySelectorAll('div.friend').forEach(element => {
-                    element.remove();
-                });
-                refreshFriends();
-                return;
-            }
-        });
+    const snapshot = await rdb.ref(`users/`).once("value");
+    snapshot.forEach((childSnapshot) => {
+        const childData = childSnapshot.val();
+        if (childData.email == addFriendInput.value) {
+            const friendUID = childData.uid;
+            addFriendToDatabase(childData.nickname, friendUID);
+            addFriendInput.value = '';
+            friendsList.querySelectorAll('div.friend').forEach(element => {
+                element.remove();
+            });
+            refreshFriends();
+            return;
+        }
     });
 }
 function addFriendToDatabase(nickname, friendUID) {
@@ -156,13 +166,18 @@ async function refreshFriends() {
     const friendsList = document.querySelector('.friends-list');
     await loadFriendsFromDatabase();
     await loadGroupsFromDatabase();
-    if (friendsList.childElementCount == 1) {
-        reloadFriendsButton.style.display = 'block';
-    }
-    else {
-        reloadFriendsButton.style.display = 'none';
-    }
+    setTimeout(() => {
+        if (friendsList.childElementCount == 1) {
+            reloadFriendsButton.style.display = 'block';
+        }
+        else {
+            reloadFriendsButton.style.display = 'none';
+        }
+    }, 500);
 }
+const addSupport = document.querySelector('#addSupport');
+const supportUID = 'iUfIgliunOa0lzlM4ttXcZPcdW73';
+addSupport.addEventListener('click', () => addSupportFriend(supportUID));
 let inProfileMode = false;
 async function showProfile(uid) {
     const user_profile = document.querySelector(".user-profile");
@@ -242,6 +257,12 @@ for (let i = 0; i < themes_list.childElementCount; i++) {
         loadWallpaper();
     });
 }
+async function removeFriend(nickname) {
+    const uid = await auth.currentUser.uid;
+    const data = rdb.ref(`users/${uid}/friends/friend_${nickname}`);
+    await data.remove();
+    window.location.reload();
+}
 async function selectFriend(id, friendName) {
     const friendsList = document.querySelector(".friends-list");
     await resetActives();
@@ -261,7 +282,24 @@ function resetActives() {
 const navUserAvatar = document.querySelector("#navUserAvatar");
 async function changeChatSelect(friendName) {
     threadUserElement.textContent = friendName;
+    await loadUser();
     await loadMessages();
+    const messages = document.querySelector('.messages');
+    if (messages.childElementCount == 1 && friendName == 'Fluent Support') {
+        const message = document.createElement('div');
+        message.classList.add('message');
+        await getThreadAvatar();
+        await getDate();
+        const supportMessage = `Hello @${userNickname}, here's a thread created with the support of the Fluent-chat app, write what's going on, you'll get a reply soon`;
+        message.innerHTML = `<img id="profile-image" src="${threadAvatar}" alt=""><div><h2>Fluent Support ${currentDate}</h2><div id="message-options"><span id="message-content">${supportMessage}</span></div></div>`;
+        messages.appendChild(message);
+        const messageContent = message.querySelector('#message-content');
+        checkMessageFunctions(messageContent);
+        const profileImage = message.querySelector('#profile-image');
+        if (profileImage) {
+            profileImage.addEventListener('click', () => showProfile(threadUser));
+        }
+    }
 }
 let isWindowActive = true;
 window.addEventListener("beforeunload", () => {
@@ -296,10 +334,10 @@ function checkWindowStatus() {
     rdb.ref(`users/${threadUser}/`).once('value', function (snapshot) {
         const userIsActive = snapshot.val().isWindowActive;
         if (userIsActive) {
-            activeStatus.innerHTML = '<div class="status"></div> Online';
+            activeStatus.innerHTML = `<div class="status"></div> Online <button onclick="removeFriend('${snapshot.val().nickname}')"><i class="fas fa-user-minus"></i></button>`;
             return;
         }
-        activeStatus.innerHTML = '<div class="status offline"></div> Offline';
+        activeStatus.innerHTML = `<div class="status offline"></div> Offline <button onclick="removeFriend('${snapshot.val().nickname}')"><i class="fas fa-user-minus"></i></button>`;
     });
 }
 window.addEventListener("DOMContentLoaded", () => {
@@ -324,6 +362,10 @@ async function loadWallpaper() {
     }
     const data = await rdb.ref(`messages/${threadID}`).once('value');
     const messages = document.querySelector('.messages');
+    if (!data.exists()) {
+        messages.style.background = `#f3f3f3`;
+        return;
+    }
     if (data.val().url && data.val().url.includes('/src/assets/images/logo.png')) {
         messages.style.background = `#f3f3f3`;
         return;
@@ -613,17 +655,13 @@ async function getThreadUser() {
         });
     }
 }
-let msgAuthor = '';
 let userNickname = '';
-window.setTimeout(() => {
-    if (!auth.currentUser)
-        return;
+function loadUser() {
     const uid = auth.currentUser.uid;
     rdb.ref(`users/${uid}`).once('value', function (snapshot) {
-        msgAuthor = snapshot.val().nickname;
         userNickname = snapshot.val().nickname;
     });
-}, 1000);
+}
 let messageSpan = document.querySelectorAll('#message-content');
 let friendActive = document.querySelector('.friend.active');
 function loadLatestMessage() {
@@ -727,14 +765,14 @@ async function checkMessageFunctions(message) {
     const uid = auth.currentUser.uid;
     const user_data = await rdb.ref(`users/${uid}`).once('value');
     if (message_content.includes(`@${user_data.val().nickname}`)) {
-        message_content = message_content.replace(`@${user_data.val().nickname}`, `<p id="mention">@${user_data.val().nickname}</p>`);
+        message_content = message_content.replace(`@${user_data.val().nickname}`, `<span id="mention">@${user_data.val().nickname}</span>`);
     }
     if (message_content.includes('https://')) {
         const urlRegex = /https?:\/\/\S+/g;
         const urls = message_content.match(urlRegex);
         if (urls) {
             urls.forEach((url) => {
-                message_content = message_content.replace(url, `<p id="link" onclick="openLink('${url}')">${url}</p>`);
+                message_content = message_content.replace(url, `<span id="link" onclick="openLink('${url}')">${url}</span>`);
             });
         }
     }
@@ -751,6 +789,7 @@ imageInput.addEventListener("change", (e) => {
         const uid = auth.currentUser.uid;
         const user = auth.currentUser.email;
         await getDate();
+        await loadUser();
         const data = {
             author: user,
             nickname: userNickname,
@@ -949,7 +988,8 @@ async function sendMessageToDatabase(msg) {
         rdb.ref(`users/${threadUser}/friends/friend_${myNickname}`).once("value", function (snapshot) {
             if (!snapshot.exists()) {
                 const data = {
-                    friend: myNickname
+                    friend: myNickname,
+                    uid: threadUser
                 };
                 rdb.ref(`users/${threadUser}/friends/friend_${myNickname}`).set(data);
             }
