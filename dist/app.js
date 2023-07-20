@@ -241,19 +241,11 @@ change_theme.addEventListener("click", () => {
 const themes_list = document.querySelector(".list");
 for (let i = 0; i < themes_list.childElementCount; i++) {
     themes_list.children[i].addEventListener("click", async () => {
-        await getThreadUser();
-        let threadID;
         const uid = auth.currentUser.uid;
-        if (!threadUser.includes("Group_")) {
-            threadID = [uid, threadUser].sort().join(",");
-        }
-        else {
-            threadID = [threadUser];
-        }
         const data = {
             url: themes_list.children[i].children[0].src
         };
-        await rdb.ref(`messages/${threadID}`).update(data);
+        await rdb.ref(`users/${uid}/friends/friend_${userThreadNickname}`).update(data);
         loadWallpaper();
     });
 }
@@ -268,8 +260,8 @@ async function selectFriend(id, friendName) {
     await resetActives();
     friendsList.children[id + 1].classList.add("active");
     navUserAvatar.src = friendsList.children[id + 1].children[0].src;
-    await changeChatSelect(friendName);
     loadWallpaper();
+    await changeChatSelect(friendName);
     await addListenerToMessage();
     loadGroupName();
 }
@@ -342,7 +334,7 @@ function checkWindowStatus() {
 }
 window.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("visibilitychange", checkWindowStatus);
-    setInterval(checkWindowStatus, 3000);
+    setInterval(checkWindowStatus, 1000);
 });
 function toggleAddUsers() {
     const addUserDiv = document.querySelector('#addUserDiv');
@@ -351,16 +343,9 @@ function toggleAddUsers() {
     changeGroupDiv.classList.remove('show');
 }
 async function loadWallpaper() {
-    await getThreadUser();
-    let threadID;
     const uid = auth.currentUser.uid;
-    if (!threadUser.includes("Group_")) {
-        threadID = [uid, threadUser].sort().join(',');
-    }
-    else {
-        threadID = [threadUser];
-    }
-    const data = await rdb.ref(`messages/${threadID}`).once('value');
+    await getThreadUser();
+    const data = await rdb.ref(`users/${uid}/friends/friend_${userThreadNickname}`).once('value');
     const messages = document.querySelector('.messages');
     if (!data.exists()) {
         messages.style.background = `#f3f3f3`;
@@ -618,18 +603,22 @@ async function getMessageID(threadID) {
     }
     if (snapshot.val() == null) {
         msgID = 0;
-        return;
     }
-    const messageIDs = Object.keys(snapshot.val());
-    const availableMessageIDs = [];
-    for (const messageID of messageIDs) {
-        const numberPart = messageID.split("_")[1];
-        availableMessageIDs.push(parseInt(numberPart));
+    else {
+        const messageIDs = Object.keys(snapshot.val());
+        const availableMessageIDs = [];
+        for (const messageID of messageIDs) {
+            const numberPart = messageID.split("_")[1];
+            if (!isNaN(parseInt(numberPart))) {
+                availableMessageIDs.push(parseInt(numberPart));
+            }
+        }
+        const maxMessageID = Math.max(...availableMessageIDs);
+        msgID = maxMessageID + 1;
     }
-    const maxMessageID = Math.max(...availableMessageIDs);
-    msgID = maxMessageID + 1;
 }
 let threadUser = '';
+let userThreadNickname = '';
 const threadUserElement = document.querySelector('#threadUser');
 async function getThreadUser() {
     const threadUserNickname = threadUserElement.textContent;
@@ -640,6 +629,7 @@ async function getThreadUser() {
                 if (childData.nickname != threadUserNickname)
                     return;
                 threadUser = childData.uid;
+                userThreadNickname = childData.nickname;
             });
         });
     }
@@ -651,6 +641,7 @@ async function getThreadUser() {
                     return;
                 const id = threadUserNickname;
                 threadUser = id;
+                userThreadNickname = '';
             });
         });
     }
@@ -767,6 +758,9 @@ async function checkMessageFunctions(message) {
     if (message_content.includes(`@${user_data.val().nickname}`)) {
         message_content = message_content.replace(`@${user_data.val().nickname}`, `<span id="mention">@${user_data.val().nickname}</span>`);
     }
+    if (message_content.includes('@everyone')) {
+        message_content = message_content.replace('@everyone', `<span id="mention">@everyone</span>`);
+    }
     if (message_content.includes('https://')) {
         const urlRegex = /https?:\/\/\S+/g;
         const urls = message_content.match(urlRegex);
@@ -864,12 +858,8 @@ async function addListenerToMessage() {
             initialLoad = false;
             return;
         }
-        const created = data.val().author;
-        const user = auth.currentUser.email;
         const childKey = data.key;
-        if (created !== user) {
-            sendMessage(data.val(), childKey);
-        }
+        sendMessage(data.val(), childKey);
     });
     chat.on('child_changed', (data) => {
         const message_ID = data.key;
