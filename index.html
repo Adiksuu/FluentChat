@@ -9,8 +9,7 @@
     <link rel="stylesheet" href="./dist/output.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
 
-    <!-- FIREBASE -->
-    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-storage.js"></script>
@@ -28,11 +27,11 @@
 
       // Uzyskaj dostęp do bazy danych Firebase
       const database = firebase.database();
-    </script>
+    </script> -->
 </head>
 <body>
 
-   <section class="app">
+   <!-- <section class="app">
     <div class="sidebar">
         <div class="top">
             <input type="file" id="image-upload" accept="image/*">
@@ -49,7 +48,8 @@
             <button id="showAccountSettings"><i class="fas fa-gear"></i></button>
         </div>
         <div class="account-settings">
-            <span><i class="fas fa-arrow-right-from-bracket"></i> Logout</span>
+            <span id="logoutSpan"><i class="fas fa-arrow-right-from-bracket"></i> Logout</span>
+            <span id="accountSpan"><i class="fas fa-gear"></i> Account</span>
         </div>
     </div>
     <div class="chat-container">
@@ -79,7 +79,6 @@
                     <span id="activeStatus"></span>
                 </div>
                 <div class="options">
-                    <!-- <button id="callButton"><i class="fas fa-phone"></i></button> -->
                 </div>
                 <div id="addUserDiv">
                     <input id="addUserInput" type="text" placeholder="Type user email">
@@ -126,18 +125,6 @@
             </div>
         </div>
     </div>
-
-    <!-- <div class="call-screen">
-        <div class="screens">
-            <div class="screen"><video id="localVideo" autoplay></video></div>
-            <div class="screen"><video id="remoteVideo" autoplay></video></div>
-        </div>
-        <div class="options">
-            <button class="call-option call-option-mute"><i class="fas fa-microphone"></i></button>
-            <button class="call-option call-option-video"><i class="fas fa-video"></i></button>
-            <button class="disable call-option-end"><i class="fas fa-phone-slash"></i></button>
-        </div>
-    </div> -->
 
     <div class="user-profile">
         <div class="top">
@@ -236,9 +223,14 @@
         </div>
     </div>
 
+   </section> -->
+
+   <section class="loading">
+        <h1>TECHNICAL WORK IS IN PROGRESS</h1>
+        <img src="./src/assets/images/logo-bg.png" alt="">
    </section>
 
-    <script src="./dist/app.js"></script>
+    <!-- <script src="./dist/app.js"></script> -->
     
 </body>
 </html>

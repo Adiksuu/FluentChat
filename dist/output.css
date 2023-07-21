@@ -91,7 +91,7 @@ section.app .sidebar .account-settings {
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
+  text-align: center;
   opacity: 0;
   pointer-events: none;
 }
@@ -100,12 +100,22 @@ section.app .sidebar .account-settings.show {
   pointer-events: all;
 }
 section.app .sidebar .account-settings span {
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 700;
   color: #1dabad;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: center;
+  cursor: pointer;
+  width: 50%;
+}
+section.app .sidebar .account-settings span:hover {
+  background: rgba(255, 255, 255, 0.1882352941);
 }
 section.app .sidebar .account-settings span i {
   margin-right: 4px;
+  font-size: 16px;
 }
 section.app .chat-container {
   width: calc(100% - 96px);
@@ -961,6 +971,27 @@ section.app .call-screen .options button {
 section.app .call-screen .options button.disable {
   background: rgba(173, 29, 29, 0.1450980392);
   color: #ad1d1d;
+}
+
+section.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  flex-direction: column;
+  gap: 16px;
+}
+section.loading h1 {
+  color: #1dabad;
+  font-weight: 800;
+  font-size: 22px;
+  text-align: center;
+}
+section.loading img {
+  height: 128px;
+  border-radius: 8px;
 }
 
 @media screen and (max-width: 1300px) {

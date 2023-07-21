@@ -183,6 +183,7 @@ async function showProfile(uid) {
     const user_profile = document.querySelector(".user-profile");
     if (inProfileMode) {
         inProfileMode = false;
+        inEditProfile = false;
         user_profile.classList.remove("show");
     }
     else {
@@ -206,6 +207,16 @@ async function showProfile(uid) {
         profile_nickname.textContent = `@${userDataBasic.val().nickname}`;
         if (userDataAdvanced.exists() && userDataAdvanced.val().bio) {
             profile_bio.textContent = userDataAdvanced.val().bio;
+            if (inEditProfile) {
+                profile_bio.contentEditable = 'true';
+                profile_bio.addEventListener('input', () => {
+                    const content = profile_bio.textContent;
+                    const data = {
+                        bio: content
+                    };
+                    rdb.ref(`users/${uid}/info`).update(data);
+                });
+            }
         }
         else {
             profile_bio.textContent = "Welcome on my bio";
@@ -230,6 +241,8 @@ document.body.addEventListener("click", (e) => {
 });
 const change_theme = document.querySelector("#change-theme");
 change_theme.addEventListener("click", () => {
+    if (inEditProfile)
+        return;
     showProfile("");
     const theme_selector = document.querySelector(".theme-selector");
     theme_selector.classList.toggle("show");
@@ -1021,6 +1034,19 @@ function loadAvatar() {
         imageToChange.src = snapshot.val().url;
     });
 }
+const accountSpan = document.querySelector('#accountSpan');
+let inEditProfile = false;
+accountSpan.addEventListener('click', () => showEditBIO());
+function showEditBIO() {
+    if (!inEditProfile) {
+        const uid = auth.currentUser.uid;
+        inEditProfile = true;
+        showProfile(uid);
+    }
+    else {
+        showProfile('');
+    }
+}
 let myAvatar;
 let threadAvatar;
 async function getMyAvatar() {
@@ -1097,12 +1123,13 @@ function login(email, password) {
     });
 }
 const showAccountSettingsButton = document.querySelector('#showAccountSettings');
+const logoutSpan = document.querySelector('#logoutSpan');
 const accountSettings = document.querySelector('.account-settings');
 showAccountSettingsButton.addEventListener('click', () => showAccountSettings());
 function showAccountSettings() {
     accountSettings.classList.toggle('show');
 }
-accountSettings.addEventListener('click', () => logout());
+logoutSpan.addEventListener('click', () => logout());
 async function logout() {
     isWindowActive = false;
     await auth.signOut();
